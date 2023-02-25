@@ -5,37 +5,39 @@ import styles from '@/styles/Home.module.css'
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 import { Table } from './components/Table'
-import { MoneyMove } from './types'
+import { BudgetEntry, ConstantMoneyMove, MoneyMove } from './types'
+import { format, parseISO } from 'date-fns'
+import { calculateBudget } from './utils'
 
 const inter = Inter({ subsets: ['latin'] })
 const url = 'https://script.google.com/macros/s/AKfycbwnvwyuUfil4NtQlAKdagrz6EJijWi88rpU9Ou1f9myqWWk65TVjKQ57VtLYm3Qsby7fg/exec'
 
-const calculateBalances = (values: string[][]) => {
+const calculateBalances = (values: BudgetEntry[]) => {
   const result = [values[0], values[1]]
   for (let i = 2; i < values.length; i++) {
     let currentRow = values[i]
-    const prevValueIP = values[i-1][9]
-    const prevValueOOO = values[i-1][10]
-    if(!currentRow[1]) {
-      currentRow[9] = prevValueIP;
-      currentRow[10] = prevValueOOO;
+    const prevValueIP = values[i-1][8]
+    const prevValueOOO = values[i-1][9]
+    if(!currentRow[0]) {
+      currentRow[8] = prevValueIP;
+      currentRow[9] = prevValueOOO;
       result.push(currentRow)
     } else {
-      const currentIncome = values[i][3] || 0
-      const currentExpense = values[i][4] || 0
-      const currentAccountType = values[i][7]
+      const currentIncome = values[i][2] || 0
+      const currentExpense = values[i][3] || 0
+      const currentAccountType = values[i][6]
       if(currentAccountType === 'OOO') {
-        currentRow[10] =
+        currentRow[9] =
           parseFloat(prevValueOOO) +
           parseFloat(currentIncome) +
           parseFloat(currentExpense);
-        currentRow[9] = prevValueIP
+        currentRow[8] = prevValueIP
       } else {
-        currentRow[9] =
+        currentRow[8] =
           parseFloat(prevValueIP) +
           parseFloat(currentIncome) +
           parseFloat(currentExpense);
-        currentRow[10] = prevValueOOO;
+        currentRow[9] = prevValueOOO;
       }
       result.push(currentRow)
     }
@@ -43,23 +45,51 @@ const calculateBalances = (values: string[][]) => {
   return result
 }
 export default function Home() {
-  const [calcs, setCalcs] = useState<string[][]>([])
-  const [incomes, setIncomes] = useState<string[][]>([])
-  const [expenses, setExpenses] = useState<string[][]>([])
+  const [calcs, setCalcs] = useState<BudgetEntry[]>([])
+  const [incomes, setIncomes] = useState<ConstantMoneyMove[]>([])
+  const [expenses, setExpenses] = useState<ConstantMoneyMove[]>([])
   useEffect(() => {
     async function get() {
       const res = await axios.get(url);
-      setCalcs(
-        res.data.calcs.map((row, i) =>
+      const parsedCalcs = res.data.calcs.map((row, i) =>
           i <= 1
-            ? ['№', true, ...row]
-            : [ i, true, ...row.map((value, index) => {
-              return (index >= row.length - 2 ? "" : index === 5 && value ? value === "Счёт рублевый ООО" ? "OOO" : "IP" : value)
+            ? ['', ...row]
+            : [true, ...row.map((value, index) => {
+              return (index >= row.length - 2 ? 0 : index === 5 && value ? value === "Счёт рублевый ООО" ? "OOO" : "IP" : value)
             })]
         )
-      );
-      setIncomes(res.data.income);
-      setExpenses(res.data.expense);
+
+      const parsedIncomes = res.data.income.map((row, i) =>
+          i < 1
+            ? [...row]
+            : [
+                ...row.map((value, index) => {
+                  return index === 4 && value
+                    ? value === "Счёт рублевый ООО"
+                      ? "OOO"
+                      : "IP"
+                    : value;
+                }),
+              ]
+        )
+
+      const parsedExpenses = res.data.expense.map((row, i) =>
+          i < 1
+            ? [...row]
+            : [
+                ...row.map((value, index) => {
+                  return index === 4 && value
+                    ? value === "Счёт рублевый ООО"
+                      ? "OOO"
+                      : "IP"
+                    : value;
+                }),
+              ]
+        )
+      setIncomes(parsedIncomes);
+      setExpenses(parsedExpenses);
+      const calculatedCalcs = calculateBudget(parsedCalcs, parsedIncomes, parsedExpenses, 4)
+      setCalcs(calculatedCalcs)
     }
     get()
   }, [])
@@ -72,11 +102,22 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.main}>
+        <button onClick={async () => {
+          const res = await axios.get(url);
+          const parsedCalcs = res.data.calcs.map((row, i) =>
+            i <= 1
+              ? ['', ...row]
+              : [true, ...row.map((value, index) => {
+                return (index >= row.length - 2 ? 0 : index === 5 && value ? value === "Счёт рублевый ООО" ? "OOO" : "IP" : value)
+              })]
+          )
+          const reCalcs = calculateBudget(parsedCalcs, incomes, expenses, 4)
+          setCalcs(reCalcs)
+        }}>Calculate</button>
         {calcs?.length ? (
           <Table<MoneyMove>
             data={calculateBalances(calcs)}
             renderFuncs={[
-              undefined,
               (value, rowIndex) => (
                 <input
                   type={"checkbox"}
@@ -84,13 +125,13 @@ export default function Home() {
                   onChange={(ev) => {
                     let newCalcs = [...calcs];
 
-                    newCalcs[rowIndex][1] = ev.target.checked;
+                    newCalcs[rowIndex][0] = ev.target.checked;
 
                     setCalcs(newCalcs);
                   }}
                 />
               ),
-              undefined,
+              (value) => format(parseISO(value), 'dd.MM.yyyy'),
               undefined,
               undefined,
               undefined,
@@ -101,7 +142,7 @@ export default function Home() {
                   onChange={(ev) => {
                     let newCalcs = [...calcs];
 
-                    newCalcs[rowIndex][7] = ev.target.value;
+                    newCalcs[rowIndex][6] = ev.target.value;
 
                     setCalcs(newCalcs);
                   }}
@@ -109,27 +150,97 @@ export default function Home() {
                   <option value={""}></option>
                   <option value={"IP"}>Счёт рублевый ИП</option>
                   <option value={"OOO"}>Счёт рублевый ООО</option>
-                </select>
+                </select>,
               ),
+              undefined,
+              (value) => new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB' }).format(value),
+              (value) => new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB' }).format(value),
             ]}
           />
         ) : null}
         {incomes?.length ? (
           <>
-            <Table data={incomes} />
-            {/* TODO Make expences/incomes adjustable */}
+            <Table
+              data={incomes}
+              renderFuncs={[
+                (value, rowIndex) => (
+                  <input
+                    type={"number"}
+                    value={value}
+                    onChange={(ev) => {
+                      let newIncomes = [...incomes];
+
+                      newIncomes[rowIndex][0] = ev.target.value;
+
+                      setIncomes(newIncomes);
+                    }}
+                  />
+                ),
+                (value, rowIndex) => (
+                  <input
+                    type={"number"}
+                    value={value}
+                    onChange={(ev) => {
+                      let newIncomes = [...incomes];
+
+                      newIncomes[rowIndex][1] = ev.target.value;
+
+                      setIncomes(newIncomes);
+                    }}
+                  />
+                ),
+                (value, rowIndex) => (
+                  <input
+                    type={"number"}
+                    value={value}
+                    onChange={(ev) => {
+                      let newIncomes = [...incomes];
+
+                      newIncomes[rowIndex][2] = ev.target.value;
+
+                      setIncomes(newIncomes);
+                    }}
+                  />
+                ),
+                (value, rowIndex) => (
+                  <input
+                    value={value}
+                    onChange={(ev) => {
+                      let newIncomes = [...incomes];
+
+                      newIncomes[rowIndex][3] = ev.target.value;
+
+                      setIncomes(newIncomes);
+                    }}
+                  />
+                ),
+                (value, rowIndex) => (
+                  <select
+                    value={value}
+                    onChange={(ev) => {
+                      let newIncomes = [...incomes];
+
+                      newIncomes[rowIndex][4] = ev.target.value;
+
+                      setIncomes(newIncomes);
+                    }}
+                  >
+                    <option value={"IP"}>Счёт рублевый ИП</option>
+                    <option value={"OOO"}>Счёт рублевый ООО</option>
+                  </select>
+                ),
+              ]}
+            />
             <button
               onClick={() => {
-                // TODO Add a modal form to create income/expense
-                const newIncome = [
-                  "15",
-                  "150000",
-                  "",
+                const newIncome: ConstantMoneyMove = [
+                  15,
+                  150000,
+                  0,
                   "New income",
-                  "Счёт рублевый ООО",
+                  'OOO',
                 ];
                 setIncomes([...incomes, newIncome]);
-                // TODO Recalculate balances with added expense in mind
               }}
             >
               Добавить постоянный доход
@@ -138,18 +249,87 @@ export default function Home() {
         ) : null}
         {expenses?.length ? (
           <>
-            <Table data={expenses} />
+            <Table
+              data={expenses}
+              renderFuncs={[
+                (value, rowIndex) => (
+                  <input
+                    type={"number"}
+                    value={value}
+                    onChange={(ev) => {
+                      let newExpenses = [...expenses];
+
+                      newExpenses[rowIndex][0] = ev.target.value;
+
+                      setExpenses(newExpenses);
+                    }}
+                  />
+                ),
+                (value, rowIndex) => (
+                  <input
+                    type={"number"}
+                    value={value}
+                    onChange={(ev) => {
+                      let newExpenses = [...expenses];
+
+                      newExpenses[rowIndex][1] = ev.target.value;
+
+                      setExpenses(newExpenses);
+                    }}
+                  />
+                ),
+                (value, rowIndex) => (
+                  <input
+                    type={"number"}
+                    value={value}
+                    onChange={(ev) => {
+                      let newExpenses = [...expenses];
+
+                      newExpenses[rowIndex][2] = ev.target.value;
+
+                      setExpenses(newExpenses);
+                    }}
+                  />
+                ),
+                (value, rowIndex) => (
+                  <input
+                    value={value}
+                    onChange={(ev) => {
+                      let newExpenses = [...expenses];
+
+                      newExpenses[rowIndex][3] = ev.target.value;
+
+                      setExpenses(newExpenses);
+                    }}
+                  />
+                ),
+                (value, rowIndex) => (
+                  <select
+                    value={value}
+                    onChange={(ev) => {
+                      let newExpenses = [...expenses];
+
+                      newExpenses[rowIndex][4] = ev.target.value;
+
+                      setExpenses(newExpenses);
+                    }}
+                  >
+                    <option value={"IP"}>Счёт рублевый ИП</option>
+                    <option value={"OOO"}>Счёт рублевый ООО</option>
+                  </select>
+                ),
+              ]}
+            />
             <button
               onClick={() => {
-                const newExpense = [
-                  "5",
-                  "",
-                  "-50000",
+                const newExpense: ConstantMoneyMove = [
+                  5,
+                  0,
+                  -50000,
                   "New expense",
-                  "Счёт рублевый ООО",
+                  'OOO',
                 ];
                 setExpenses([...expenses, newExpense]);
-                // TODO Recalculate balances with added expense in mind
               }}
             >
               Добавить постоянный расход
