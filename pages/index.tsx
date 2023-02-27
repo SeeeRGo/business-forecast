@@ -47,6 +47,7 @@ export default function Home() {
   const [calcs, setCalcs] = useState<BudgetEntry[]>([])
   const [incomes, setIncomes] = useState<ConstantMoneyMove[]>([])
   const [expenses, setExpenses] = useState<ConstantMoneyMove[]>([])
+  const [experimentLength, setExperimentLength] = useState(1)
   useEffect(() => {
     async function get() {
       const res = await axios.get(url);
@@ -103,6 +104,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.main}>
+      Постоянные доходы
       {incomes?.length ? (
           <>
             <Table
@@ -192,6 +194,7 @@ export default function Home() {
             </button>
           </>
         ) : null}
+      Постоянные расходы
       {expenses?.length ? (
           <>
             <Table
@@ -281,6 +284,15 @@ export default function Home() {
             </button>
           </>
         ) : null}
+        <label htmlFor="experimentLength">Продолжительность экстраполяции (месяцев)</label>
+        <input
+          type={"number"}
+          name="experimentLength"
+          value={experimentLength}
+          onChange={(ev) => {
+            setExperimentLength(Math.floor(parseFloat(ev.target.value)))
+          }}
+        />
         <button onClick={async () => {
           const res = await axios.get(url);
           const parsedCalcs = res.data.calcs.map((row, i) =>
@@ -290,7 +302,7 @@ export default function Home() {
                 return (index >= row.length - 2 ? 0 : index === 5 && value ? value === "Счёт рублевый ООО" ? "OOO" : "IP" : value)
               })]
           )
-          const reCalcs = calculateBudget(parsedCalcs, incomes, expenses, 4)
+          const reCalcs = calculateBudget(parsedCalcs, incomes, expenses, experimentLength)
           setCalcs(reCalcs)
         }}>Calculate</button>
         {calcs?.length ? (
