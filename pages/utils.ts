@@ -1,5 +1,5 @@
 import { add, parseISO } from "date-fns";
-import { BudgetEntry, ConstantMoneyMove, MoneyMove } from "./types";
+import { BudgetEntry, ConstantMoneyMove } from "./types";
 
 export const calculateBudget = (
   [head, initial, ...calcs]: BudgetEntry[],
@@ -35,7 +35,7 @@ export const calculateBudget = (
 };
 
 const createBudgetEntriesFromMoneyMoves = (
-  [day, income, expense, description, account]: MoneyMove,
+  [day, income, expense, description, account]: ConstantMoneyMove,
   baseDate: Date,
   offset: number
 ): BudgetEntry => {

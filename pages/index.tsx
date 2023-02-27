@@ -1,11 +1,10 @@
 import Head from 'next/head'
-import Image from 'next/image'
 import { Inter } from '@next/font/google'
 import styles from '@/styles/Home.module.css'
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 import { Table } from './components/Table'
-import { BudgetEntry, ConstantMoneyMove, MoneyMove } from './types'
+import { BudgetEntry, ConstantMoneyMove } from './types'
 import { format, parseISO } from 'date-fns'
 import { calculateBudget } from './utils'
 
@@ -52,8 +51,10 @@ export default function Home() {
     async function get() {
       const res = await axios.get(url);
       const parsedCalcs = res.data.calcs.map((row, i) =>
-          i <= 1
+          i === 0
             ? ['', ...row]
+            : i === 1 ?
+            [true, ...row]
             : [true, ...row.map((value, index) => {
               return (index >= row.length - 2 ? 0 : index === 5 && value ? value === "Счёт рублевый ООО" ? "OOO" : "IP" : value)
             })]
@@ -102,63 +103,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.main}>
-        <button onClick={async () => {
-          const res = await axios.get(url);
-          const parsedCalcs = res.data.calcs.map((row, i) =>
-            i <= 1
-              ? ['', ...row]
-              : [true, ...row.map((value, index) => {
-                return (index >= row.length - 2 ? 0 : index === 5 && value ? value === "Счёт рублевый ООО" ? "OOO" : "IP" : value)
-              })]
-          )
-          const reCalcs = calculateBudget(parsedCalcs, incomes, expenses, 4)
-          setCalcs(reCalcs)
-        }}>Calculate</button>
-        {calcs?.length ? (
-          <Table<MoneyMove>
-            data={calculateBalances(calcs)}
-            renderFuncs={[
-              (value, rowIndex) => (
-                <input
-                  type={"checkbox"}
-                  checked={value}
-                  onChange={(ev) => {
-                    let newCalcs = [...calcs];
-
-                    newCalcs[rowIndex][0] = ev.target.checked;
-
-                    setCalcs(newCalcs);
-                  }}
-                />
-              ),
-              (value) => format(parseISO(value), 'dd.MM.yyyy'),
-              undefined,
-              undefined,
-              undefined,
-              undefined,
-              (value, rowIndex) => (
-                <select
-                  value={value}
-                  onChange={(ev) => {
-                    let newCalcs = [...calcs];
-
-                    newCalcs[rowIndex][6] = ev.target.value;
-
-                    setCalcs(newCalcs);
-                  }}
-                >
-                  <option value={""}></option>
-                  <option value={"IP"}>Счёт рублевый ИП</option>
-                  <option value={"OOO"}>Счёт рублевый ООО</option>
-                </select>,
-              ),
-              undefined,
-              (value) => new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB' }).format(value),
-              (value) => new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB' }).format(value),
-            ]}
-          />
-        ) : null}
-        {incomes?.length ? (
+      {incomes?.length ? (
           <>
             <Table
               data={incomes}
@@ -247,7 +192,7 @@ export default function Home() {
             </button>
           </>
         ) : null}
-        {expenses?.length ? (
+      {expenses?.length ? (
           <>
             <Table
               data={expenses}
@@ -335,6 +280,66 @@ export default function Home() {
               Добавить постоянный расход
             </button>
           </>
+        ) : null}
+        <button onClick={async () => {
+          const res = await axios.get(url);
+          const parsedCalcs = res.data.calcs.map((row, i) =>
+            i <= 1
+              ? ['', ...row]
+              : [true, ...row.map((value, index) => {
+                return (index >= row.length - 2 ? 0 : index === 5 && value ? value === "Счёт рублевый ООО" ? "OOO" : "IP" : value)
+              })]
+          )
+          const reCalcs = calculateBudget(parsedCalcs, incomes, expenses, 4)
+          setCalcs(reCalcs)
+        }}>Calculate</button>
+        {calcs?.length ? (
+          <Table<BudgetEntry>
+            data={calculateBalances(calcs)}
+            rowStylingRules={[
+              (row) => row[0] ? {} : { opacity: 0.1 },
+              (row) => row[6] === 'OOO' ? { backgroundColor: '#76ff03' } : {}  
+            ]}
+            renderFuncs={[
+              (value, rowIndex) => (
+                <input
+                  type={"checkbox"}
+                  checked={value}
+                  onChange={(ev) => {
+                    let newCalcs = [...calcs];
+
+                    newCalcs[rowIndex][0] = ev.target.checked;
+
+                    setCalcs(newCalcs);
+                  }}
+                />
+              ),
+              (value) => format(parseISO(value), 'dd.MM.yyyy'),
+              (value: number) => new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB' }).format(value),
+              (value: number) => new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB' }).format(value),
+              undefined,
+              undefined,
+              (value, rowIndex) => (
+                <select
+                  value={value}
+                  onChange={(ev) => {
+                    let newCalcs = [...calcs];
+
+                    newCalcs[rowIndex][6] = ev.target.value;
+
+                    setCalcs(newCalcs);
+                  }}
+                >
+                  <option value={""}></option>
+                  <option value={"IP"}>Счёт рублевый ИП</option>
+                  <option value={"OOO"}>Счёт рублевый ООО</option>
+                </select>
+              ),
+              undefined,
+              (value: number) => new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB' }).format(value),
+              (value: number) => new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB' }).format(value),
+            ]}
+          />
         ) : null}
       </main>
     </>
