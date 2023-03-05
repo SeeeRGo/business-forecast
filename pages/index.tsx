@@ -1,100 +1,55 @@
-import Head from 'next/head'
-import { Inter } from '@next/font/google'
-import styles from '@/styles/Home.module.css'
-import { useEffect, useState } from 'react'
-import axios from 'axios'
-import { Table } from './components/Table'
-import { BudgetEntry, ConstantMoneyMove } from './types'
-import { format, parseISO } from 'date-fns'
-import { calculateBudget } from './utils'
+import Head from "next/head";
+import { Inter } from "@next/font/google";
+import styles from "@/styles/Home.module.css";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { Table } from "./components/Table";
+import { BudgetEntry, ConstantMoneyMove, ParsedBudgetEntry } from "./types";
+import { format, parse } from "date-fns";
+import { parseCalcs } from "./utils/parseCalcs";
+import { parseIncomes } from "./utils/parseIncomes";
+import { parseExpenses } from "./utils/parseExpenses";
+import { calculateBudget, sortBudgetEntries } from "./utils";
+import { calculateBalances } from "./utils/calculateBalances";
+import { AccountSelect } from "./components/AccountSelect";
+import { createOnChangeHandler } from "./utils/createOnChangeHandler";
+import { Input } from "./components/Input";
+import {
+  createInputRenderer,
+  createSelectRenderer,
+} from "./utils/createInputRender";
+import { BUDGET_ENTRY_KEYS, timeFormat, timeInputFormat } from "./constants";
 
-const inter = Inter({ subsets: ['latin'] })
-const url = 'https://script.google.com/macros/s/AKfycbwnvwyuUfil4NtQlAKdagrz6EJijWi88rpU9Ou1f9myqWWk65TVjKQ57VtLYm3Qsby7fg/exec'
+const inter = Inter({ subsets: ["latin"] });
+const url =
+  "https://script.google.com/macros/s/AKfycbwnvwyuUfil4NtQlAKdagrz6EJijWi88rpU9Ou1f9myqWWk65TVjKQ57VtLYm3Qsby7fg/exec";
 
-const calculateBalances = (values: BudgetEntry[]) => {
-  const result = [values[0], values[1]]
-  for (let i = 2; i < values.length; i++) {
-    let currentRow = values[i]
-    const prevValueIP = values[i-1][8]
-    const prevValueOOO = values[i-1][9]
-    if(!currentRow[0]) {
-      currentRow[8] = prevValueIP;
-      currentRow[9] = prevValueOOO;
-      result.push(currentRow)
-    } else {
-      const currentIncome = values[i][2] || 0
-      const currentExpense = values[i][3] || 0
-      const currentAccountType = values[i][6]
-      if(currentAccountType === 'OOO') {
-        currentRow[9] =
-          parseFloat(prevValueOOO) +
-          parseFloat(currentIncome) +
-          parseFloat(currentExpense);
-        currentRow[8] = prevValueIP
-      } else {
-        currentRow[8] =
-          parseFloat(prevValueIP) +
-          parseFloat(currentIncome) +
-          parseFloat(currentExpense);
-        currentRow[9] = prevValueOOO;
-      }
-      result.push(currentRow)
-    }
-  }
-  return result
-}
 export default function Home() {
-  const [calcs, setCalcs] = useState<BudgetEntry[]>([])
-  const [incomes, setIncomes] = useState<ConstantMoneyMove[]>([])
-  const [expenses, setExpenses] = useState<ConstantMoneyMove[]>([])
-  const [experimentLength, setExperimentLength] = useState(1)
+  const [calcs, setCalcs] = useState<ParsedBudgetEntry[]>([]);
+  const [incomes, setIncomes] = useState<ConstantMoneyMove[]>([]);
+  const [expenses, setExpenses] = useState<ConstantMoneyMove[]>([]);
+  const [experimentLength, setExperimentLength] = useState(1);
   useEffect(() => {
     async function get() {
       const res = await axios.get(url);
-      const parsedCalcs = res.data.calcs.map((row, i) =>
-          i === 0
-            ? ['', ...row]
-            : i === 1 ?
-            [true, ...row]
-            : [true, ...row.map((value, index) => {
-              return (index >= row.length - 2 ? 0 : index === 5 && value ? value === "Счёт рублевый ООО" ? "OOO" : "IP" : value)
-            })]
-        )
+      const parsedCalcs = parseCalcs(res.data.calcs);
+      const parsedIncomes = parseIncomes(res.data.income);
+      const parsedExpenses = parseExpenses(res.data.expense);
 
-      const parsedIncomes = res.data.income.map((row, i) =>
-          i < 1
-            ? [...row]
-            : [
-                ...row.map((value, index) => {
-                  return index === 4 && value
-                    ? value === "Счёт рублевый ООО"
-                      ? "OOO"
-                      : "IP"
-                    : value;
-                }),
-              ]
-        )
-
-      const parsedExpenses = res.data.expense.map((row, i) =>
-          i < 1
-            ? [...row]
-            : [
-                ...row.map((value, index) => {
-                  return index === 4 && value
-                    ? value === "Счёт рублевый ООО"
-                      ? "OOO"
-                      : "IP"
-                    : value;
-                }),
-              ]
-        )
       setIncomes(parsedIncomes);
       setExpenses(parsedExpenses);
-      const calculatedCalcs = calculateBudget(parsedCalcs, parsedIncomes, parsedExpenses, 4)
-      setCalcs(calculatedCalcs)
+      const calculatedCalcs = calculateBudget(
+        parsedCalcs,
+        parsedIncomes,
+        parsedExpenses,
+        4
+      );
+      setCalcs(calculatedCalcs);
     }
-    get()
-  }, [])
+    get();
+  }, []);
+
+  const calcHeaders = calculateBalances(calcs)[0];
   return (
     <>
       <Head>
@@ -104,78 +59,18 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.main}>
-      Постоянные доходы
-      {incomes?.length ? (
+        Постоянные доходы
+        {incomes?.length ? (
           <>
             <Table
-              data={incomes}
+              data={incomes.slice(1)}
+              headers={incomes[0]}
               renderFuncs={[
-                (value, rowIndex) => (
-                  <input
-                    type={"number"}
-                    value={value}
-                    onChange={(ev) => {
-                      let newIncomes = [...incomes];
-
-                      newIncomes[rowIndex][0] = ev.target.value;
-
-                      setIncomes(newIncomes);
-                    }}
-                  />
-                ),
-                (value, rowIndex) => (
-                  <input
-                    type={"number"}
-                    value={value}
-                    onChange={(ev) => {
-                      let newIncomes = [...incomes];
-
-                      newIncomes[rowIndex][1] = ev.target.value;
-
-                      setIncomes(newIncomes);
-                    }}
-                  />
-                ),
-                (value, rowIndex) => (
-                  <input
-                    type={"number"}
-                    value={value}
-                    onChange={(ev) => {
-                      let newIncomes = [...incomes];
-
-                      newIncomes[rowIndex][2] = ev.target.value;
-
-                      setIncomes(newIncomes);
-                    }}
-                  />
-                ),
-                (value, rowIndex) => (
-                  <input
-                    value={value}
-                    onChange={(ev) => {
-                      let newIncomes = [...incomes];
-
-                      newIncomes[rowIndex][3] = ev.target.value;
-
-                      setIncomes(newIncomes);
-                    }}
-                  />
-                ),
-                (value, rowIndex) => (
-                  <select
-                    value={value}
-                    onChange={(ev) => {
-                      let newIncomes = [...incomes];
-
-                      newIncomes[rowIndex][4] = ev.target.value;
-
-                      setIncomes(newIncomes);
-                    }}
-                  >
-                    <option value={"IP"}>Счёт рублевый ИП</option>
-                    <option value={"OOO"}>Счёт рублевый ООО</option>
-                  </select>
-                ),
+                createInputRenderer(incomes, setIncomes, 0, "number"),
+                createInputRenderer(incomes, setIncomes, 1, "number"),
+                createInputRenderer(incomes, setIncomes, 2, "number"),
+                createInputRenderer(incomes, setIncomes, 3),
+                createSelectRenderer(incomes, setIncomes, 4),
               ]}
             />
             <button
@@ -185,7 +80,7 @@ export default function Home() {
                   150000,
                   0,
                   "New income",
-                  'OOO',
+                  "OOO",
                 ];
                 setIncomes([...incomes, newIncome]);
               }}
@@ -194,78 +89,18 @@ export default function Home() {
             </button>
           </>
         ) : null}
-      Постоянные расходы
-      {expenses?.length ? (
+        Постоянные расходы
+        {expenses?.length ? (
           <>
             <Table
-              data={expenses}
+              data={expenses.slice(1)}
+              headers={expenses[0]}
               renderFuncs={[
-                (value, rowIndex) => (
-                  <input
-                    type={"number"}
-                    value={value}
-                    onChange={(ev) => {
-                      let newExpenses = [...expenses];
-
-                      newExpenses[rowIndex][0] = ev.target.value;
-
-                      setExpenses(newExpenses);
-                    }}
-                  />
-                ),
-                (value, rowIndex) => (
-                  <input
-                    type={"number"}
-                    value={value}
-                    onChange={(ev) => {
-                      let newExpenses = [...expenses];
-
-                      newExpenses[rowIndex][1] = ev.target.value;
-
-                      setExpenses(newExpenses);
-                    }}
-                  />
-                ),
-                (value, rowIndex) => (
-                  <input
-                    type={"number"}
-                    value={value}
-                    onChange={(ev) => {
-                      let newExpenses = [...expenses];
-
-                      newExpenses[rowIndex][2] = ev.target.value;
-
-                      setExpenses(newExpenses);
-                    }}
-                  />
-                ),
-                (value, rowIndex) => (
-                  <input
-                    value={value}
-                    onChange={(ev) => {
-                      let newExpenses = [...expenses];
-
-                      newExpenses[rowIndex][3] = ev.target.value;
-
-                      setExpenses(newExpenses);
-                    }}
-                  />
-                ),
-                (value, rowIndex) => (
-                  <select
-                    value={value}
-                    onChange={(ev) => {
-                      let newExpenses = [...expenses];
-
-                      newExpenses[rowIndex][4] = ev.target.value;
-
-                      setExpenses(newExpenses);
-                    }}
-                  >
-                    <option value={"IP"}>Счёт рублевый ИП</option>
-                    <option value={"OOO"}>Счёт рублевый ООО</option>
-                  </select>
-                ),
+                createInputRenderer(expenses, setExpenses, 0, "number"),
+                createInputRenderer(expenses, setExpenses, 1, "number"),
+                createInputRenderer(expenses, setExpenses, 2, "number"),
+                createInputRenderer(expenses, setExpenses, 3),
+                createSelectRenderer(expenses, setExpenses, 4),
               ]}
             />
             <button
@@ -275,7 +110,7 @@ export default function Home() {
                   0,
                   -50000,
                   "New expense",
-                  'OOO',
+                  "OOO",
                 ];
                 setExpenses([...expenses, newExpense]);
               }}
@@ -284,33 +119,86 @@ export default function Home() {
             </button>
           </>
         ) : null}
-        <label htmlFor="experimentLength">Продолжительность экстраполяции (месяцев)</label>
+        <label htmlFor="experimentLength">
+          Продолжительность экстраполяции (месяцев)
+        </label>
         <input
           type={"number"}
           name="experimentLength"
           value={experimentLength}
           onChange={(ev) => {
-            setExperimentLength(Math.floor(parseFloat(ev.target.value)))
+            setExperimentLength(Math.floor(parseFloat(ev.target.value)));
           }}
         />
-        <button onClick={async () => {
-          const res = await axios.get(url);
-          const parsedCalcs = res.data.calcs.map((row, i) =>
-            i <= 1
-              ? ['', ...row]
-              : [true, ...row.map((value, index) => {
-                return (index >= row.length - 2 ? 0 : index === 5 && value ? value === "Счёт рублевый ООО" ? "OOO" : "IP" : value)
-              })]
-          )
-          const reCalcs = calculateBudget(parsedCalcs, incomes, expenses, experimentLength)
-          setCalcs(reCalcs)
-        }}>Calculate</button>
+        <button
+          onClick={async () => {
+            const res = await axios.get(url);
+            const parsedCalcs = parseCalcs(res.data.calcs);
+            const reCalcs = calculateBudget(
+              parsedCalcs,
+              incomes,
+              expenses,
+              experimentLength
+            );
+            setCalcs(reCalcs);
+          }}
+        >
+          Calculate
+        </button>
+        <button
+          onClick={async () => {
+            const reCalcs = calculateBudget(calcs, [], [], 0);
+            setCalcs(reCalcs);
+          }}
+        >
+          Sort 
+        </button>
         {calcs?.length ? (
           <Table<BudgetEntry>
-            data={calculateBalances(calcs)}
+            data={calculateBalances(calcs)
+              .slice(1)
+              .map(
+                ({
+                  isIncluded,
+                  date,
+                  income,
+                  expense,
+                  comment,
+                  account,
+                  balanceIP,
+                  balanceOOO,
+                  balanceThird,
+                  balanceFourth,
+                }) => [
+                  isIncluded,
+                  date,
+                  income,
+                  expense,
+                  comment,
+                  account,
+                  balanceIP,
+                  balanceOOO,
+                  balanceThird,
+                  balanceFourth,
+                  "",
+                ]
+              )}
+            headers={[
+              calcHeaders.isIncluded,
+              calcHeaders.date,
+              calcHeaders.income,
+              calcHeaders.expense,
+              calcHeaders.comment,
+              calcHeaders.account,
+              calcHeaders.balanceIP,
+              calcHeaders.balanceOOO,
+              calcHeaders.balanceThird,
+              calcHeaders.balanceFourth,
+              "actions",
+            ]}
             rowStylingRules={[
-              (row) => row[0] ? {} : { opacity: 0.1 },
-              (row) => row[6] === 'OOO' ? { backgroundColor: '#76ff03' } : {}  
+              (row) => (row[0] ? {} : { opacity: 0.1 }),
+              (row) => (row[5] === "OOO" ? { backgroundColor: "#76ff03" } : {}),
             ]}
             renderFuncs={[
               (value, rowIndex) => (
@@ -320,36 +208,112 @@ export default function Home() {
                   onChange={(ev) => {
                     let newCalcs = [...calcs];
 
-                    newCalcs[rowIndex][0] = ev.target.checked;
+                    newCalcs[rowIndex] = {
+                      ...newCalcs[rowIndex],
+                      isIncluded: ev.target.checked,
+                    };
 
                     setCalcs(newCalcs);
                   }}
                 />
               ),
-              (value) => format(parseISO(value), 'dd.MM.yyyy'),
-              (value: number) => new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB' }).format(value),
-              (value: number) => new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB' }).format(value),
-              undefined,
-              undefined,
-              (value, rowIndex) => (
-                <select
-                  value={value}
-                  onChange={(ev) => {
-                    let newCalcs = [...calcs];
+              (value, rowIndex) => {
+                console.log('date', value);
+                
+                return (
+                  <input
+                    type={"date"}
+                    value={format(value, timeInputFormat)}
+                    onChange={(ev) => {
+                      let newCalcs = [...calcs];
 
-                    newCalcs[rowIndex][6] = ev.target.value;
+                      newCalcs[rowIndex] = {
+                        ...newCalcs[rowIndex],
+                        date: parse(ev.target.value, timeInputFormat, new Date()),
+                      };
 
-                    setCalcs(newCalcs);
-                  }}
-                >
-                  <option value={""}></option>
-                  <option value={"IP"}>Счёт рублевый ИП</option>
-                  <option value={"OOO"}>Счёт рублевый ООО</option>
-                </select>
+                      setCalcs(newCalcs);
+                    } } />
+                );
+              },
+              createInputRenderer(
+                calcs,
+                setCalcs,
+                BUDGET_ENTRY_KEYS.income,
+                "number"
+              ),
+              createInputRenderer(
+                calcs,
+                setCalcs,
+                BUDGET_ENTRY_KEYS.expense,
+                "number"
               ),
               undefined,
-              (value: number) => new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB' }).format(value),
-              (value: number) => new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB' }).format(value),
+              createSelectRenderer(calcs, setCalcs, BUDGET_ENTRY_KEYS.account),
+              (value: number) =>
+                new Intl.NumberFormat("ru-RU", {
+                  style: "currency",
+                  currency: "RUB",
+                }).format(value),
+              (value: number) =>
+                new Intl.NumberFormat("ru-RU", {
+                  style: "currency",
+                  currency: "RUB",
+                }).format(value),
+              (value: number) =>
+                new Intl.NumberFormat("ru-RU", {
+                  style: "currency",
+                  currency: "RUB",
+                }).format(value || 0),
+              (value: number) =>
+                new Intl.NumberFormat("ru-RU", {
+                  style: "currency",
+                  currency: "RUB",
+                }).format(value || 0),
+              (value, rowNumber) => (
+                <>
+                  <button
+                    onClick={() => {
+                      const newCalcs = [...calcs];
+                      newCalcs.splice(rowNumber, 1);
+                      setCalcs(newCalcs);
+                    }}
+                  >
+                    Del
+                  </button>
+                  <button
+                    onClick={() => {
+                      const newCalcs = [...calcs];
+                      const copy = calcs[rowNumber];
+                      newCalcs.splice(rowNumber, 0, copy);
+                      setCalcs(newCalcs);
+                    }}
+                  >
+                    Copy
+                  </button>
+                  <button
+                    onClick={() => {
+                      const newCalcs = [...calcs];
+                      const newRow = {
+                          isIncluded: true,
+                          date: new Date(),
+                          income: 0,
+                          expense: 0,
+                          comment: '',
+                          account: '',
+                          balanceIP: 0,
+                          balanceOOO: 0,
+                          balanceThird: 0,
+                          balanceFourth: 0,
+                      };
+                      newCalcs.splice(rowNumber, 0, newRow);
+                      setCalcs(calculateBalances(newCalcs));
+                    }}
+                  >
+                    Add Below
+                  </button>
+                </>
+              ),
             ]}
           />
         ) : null}

@@ -1,8 +1,9 @@
 import { add, parseISO } from "date-fns";
-import { BudgetEntry, ConstantMoneyMove } from "./types";
+import { ConstantMoneyMove, ParsedBudgetEntry } from "./types";
+import { parseAccountType } from "./utils/parseAccountType";
 
 export const calculateBudget = (
-  [head, initial, ...calcs]: BudgetEntry[],
+  [head, initial, ...calcs]: ParsedBudgetEntry[],
   incomes: ConstantMoneyMove[],
   expenses: ConstantMoneyMove[],
   extrapolatedMonths: number
@@ -10,10 +11,8 @@ export const calculateBudget = (
   let result = [...calcs];
   const baseTimestamp = calcs.reduce(
     (currentMin, entry) =>
-      currentMin < parseISO(entry[1]).getTime()
-        ? currentMin
-        : parseISO(entry[1]).getTime(),
-    parseISO(initial[1]).getTime()
+      currentMin < entry.date.getTime() ? currentMin : entry.date.getTime(),
+    initial.date.getTime()
   );
   const baseDate = new Date(baseTimestamp).setDate(1);
   for (let i = 0; i <= extrapolatedMonths; i++) {
@@ -28,27 +27,28 @@ export const calculateBudget = (
         .map((move) => createBudgetEntriesFromMoneyMoves(move, baseDate, i))
     );
   }
-  const sortedByDate = result.sort(
-    (a, b) => parseISO(a[1]).getTime() - parseISO(b[1]).getTime()
-  );
+  const sortedByDate = sortBudgetEntries(result)
   return [head, initial, ...sortedByDate];
 };
 
+export const sortBudgetEntries = (entries: ParsedBudgetEntry[]) =>
+  entries.sort((a, b) => a.date.getTime() - b.date.getTime());
+
 const createBudgetEntriesFromMoneyMoves = (
-  [day, income, expense, description, account]: ConstantMoneyMove,
+  [day, income, expense, comment, account]: ConstantMoneyMove,
   baseDate: Date,
   offset: number
-): BudgetEntry => {
-  return [
-    true,
-    add(baseDate, { months: offset, days: day - 1 }).toISOString(),
+): ParsedBudgetEntry => {
+  return {
+    isIncluded: true,
+    date: add(baseDate, { months: offset, days: day - 1 }),
     income,
     expense,
-    description,
-    "",
+    comment,
     account,
-    "",
-    0,
-    0,
-  ];
+    balanceIP: 0,
+    balanceOOO: 0,
+    balanceThird: 0,
+    balanceFourth: 0,
+  };
 };
