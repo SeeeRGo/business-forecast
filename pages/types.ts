@@ -35,3 +35,15 @@ export interface ParsedBudgetEntry {
   balanceThird: number;
   balanceFourth: number;
 }
+
+export interface ParsedConstantMoneyMove {
+  dayOfTheMonth: number;
+  income: number;
+  expense: number;
+  description: string;
+  account: AccountType;
+}
+export interface IVariant {
+  name: string;
+  entries: ParsedBudgetEntry[];
+}

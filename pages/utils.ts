@@ -1,11 +1,11 @@
 import { add, parseISO } from "date-fns";
-import { ConstantMoneyMove, ParsedBudgetEntry } from "./types";
+import { ParsedBudgetEntry, ParsedConstantMoneyMove } from "./types";
 import { parseAccountType } from "./utils/parseAccountType";
 
 export const calculateBudget = (
   [head, initial, ...calcs]: ParsedBudgetEntry[],
-  incomes: ConstantMoneyMove[],
-  expenses: ConstantMoneyMove[],
+  incomes: ParsedConstantMoneyMove[],
+  expenses: ParsedConstantMoneyMove[],
   extrapolatedMonths: number
 ) => {
   let result = [...calcs];
@@ -27,7 +27,7 @@ export const calculateBudget = (
         .map((move) => createBudgetEntriesFromMoneyMoves(move, baseDate, i))
     );
   }
-  const sortedByDate = sortBudgetEntries(result)
+  const sortedByDate = sortBudgetEntries(result);
   return [head, initial, ...sortedByDate];
 };
 
@@ -35,16 +35,16 @@ export const sortBudgetEntries = (entries: ParsedBudgetEntry[]) =>
   entries.sort((a, b) => a.date.getTime() - b.date.getTime());
 
 const createBudgetEntriesFromMoneyMoves = (
-  [day, income, expense, comment, account]: ConstantMoneyMove,
+  { dayOfTheMonth, income, expense, description, account }: ParsedConstantMoneyMove,
   baseDate: Date,
   offset: number
 ): ParsedBudgetEntry => {
   return {
     isIncluded: true,
-    date: add(baseDate, { months: offset, days: day - 1 }),
+    date: add(baseDate, { months: offset, days: dayOfTheMonth - 1 }),
     income,
     expense,
-    comment,
+    comment: description,
     account,
     balanceIP: 0,
     balanceOOO: 0,

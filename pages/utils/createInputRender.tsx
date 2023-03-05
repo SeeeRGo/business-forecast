@@ -4,8 +4,8 @@ import { Input } from "../components/Input";
 import { createOnChangeHandler } from "./createOnChangeHandler";
 
 export const createInputRenderer = (
-    state: any[][],
-    setState: (newSt: any[][]) => void,
+    state: any[],
+    setState: (newSt: any[]) => void,
     fieldName: string,
     type: ComponentProps<typeof Input>['type']
   ) =>

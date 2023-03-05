@@ -1,12 +1,16 @@
 import { parseAccountType } from "./parseAccountType";
 
 export const parseExpenses = (expenses: any[]) =>
-  expenses.map((row, i) =>
-    i < 1
-      ? [...row]
-      : [
-          ...row.map((value, index) => {
-            return index === 4 ? parseAccountType(value) : value;
-          }),
-        ]
-  );
+  expenses.map(([
+    dayOfMonth,
+    income,
+    expense,
+    description,
+    account,
+  ], i) => ({
+    dayOfMonth,
+    income: i === 0 || !income ? income : parseFloat(income),
+    expense: i === 0 || !expense ? expense : parseFloat(expense),
+    description,
+    account: i === 0 ? account : parseAccountType(account)
+  }));

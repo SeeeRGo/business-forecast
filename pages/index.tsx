@@ -19,6 +19,7 @@ import {
   createSelectRenderer,
 } from "./utils/createInputRender";
 import { BUDGET_ENTRY_KEYS, timeFormat, timeInputFormat } from "./constants";
+import { variantTable } from "@/database.config";
 
 const inter = Inter({ subsets: ["latin"] });
 const url =
@@ -29,6 +30,9 @@ export default function Home() {
   const [incomes, setIncomes] = useState<ConstantMoneyMove[]>([]);
   const [expenses, setExpenses] = useState<ConstantMoneyMove[]>([]);
   const [experimentLength, setExperimentLength] = useState(1);
+  const [variantName, setVariantName] = useState('');
+  const [variantList, setVariantList] = useState<string[]>([]);
+
   useEffect(() => {
     async function get() {
       const res = await axios.get(url);
@@ -48,6 +52,13 @@ export default function Home() {
     }
     get();
   }, []);
+  useEffect(() => {
+    variantTable
+      .where("name")
+      .notEqual("")
+      .toArray()
+      .then((data) => setVariantList(data.map(({ name }) => name)));
+  }, [])
 
   const calcHeaders = calculateBalances(calcs)[0];
   return (
@@ -63,14 +74,29 @@ export default function Home() {
         {incomes?.length ? (
           <>
             <Table
-              data={incomes.slice(1)}
-              headers={incomes[0]}
+              data={incomes
+                .slice(1)
+                .map(
+                  ({ dayOfMonth, income, expense, description, account }) => [
+                    dayOfMonth,
+                    income,
+                    expense,
+                    description,
+                    account,
+                  ]
+                )}
+              headers={Object.values(incomes[0])}
               renderFuncs={[
-                createInputRenderer(incomes, setIncomes, 0, "number"),
-                createInputRenderer(incomes, setIncomes, 1, "number"),
-                createInputRenderer(incomes, setIncomes, 2, "number"),
-                createInputRenderer(incomes, setIncomes, 3),
-                createSelectRenderer(incomes, setIncomes, 4),
+                createInputRenderer(
+                  incomes,
+                  setIncomes,
+                  "dayOfMonth",
+                  "number"
+                ),
+                createInputRenderer(incomes, setIncomes, "income", "number"),
+                createInputRenderer(incomes, setIncomes, "expense", "number"),
+                createInputRenderer(incomes, setIncomes, "description"),
+                createSelectRenderer(incomes, setIncomes, "account"),
               ]}
             />
             <button
@@ -93,14 +119,29 @@ export default function Home() {
         {expenses?.length ? (
           <>
             <Table
-              data={expenses.slice(1)}
-              headers={expenses[0]}
+              data={expenses
+                .slice(1)
+                .map(
+                  ({ dayOfMonth, income, expense, description, account }) => [
+                    dayOfMonth,
+                    income,
+                    expense,
+                    description,
+                    account,
+                  ]
+                )}
+              headers={Object.values(expenses[0])}
               renderFuncs={[
-                createInputRenderer(expenses, setExpenses, 0, "number"),
-                createInputRenderer(expenses, setExpenses, 1, "number"),
-                createInputRenderer(expenses, setExpenses, 2, "number"),
-                createInputRenderer(expenses, setExpenses, 3),
-                createSelectRenderer(expenses, setExpenses, 4),
+                createInputRenderer(
+                  expenses,
+                  setExpenses,
+                  "dayOfMonth",
+                  "number"
+                ),
+                createInputRenderer(expenses, setExpenses, "income", "number"),
+                createInputRenderer(expenses, setExpenses, "expense", "number"),
+                createInputRenderer(expenses, setExpenses, "description"),
+                createSelectRenderer(expenses, setExpenses, "account"),
               ]}
             />
             <button
@@ -146,13 +187,37 @@ export default function Home() {
           Calculate
         </button>
         <button
-          onClick={async () => {
+          onClick={() => {
             const reCalcs = calculateBudget(calcs, [], [], 0);
             setCalcs(reCalcs);
           }}
         >
-          Sort 
+          Sort
         </button>
+        <input value={variantName} onChange={(ev) => {
+          setVariantName(ev.target.value)
+        }} />
+        <button
+          onClick={async () => {
+            await variantTable.add({
+              name: variantName,
+              entries: calcs,
+            });
+          }}
+        >
+          Save Variant
+        </button>
+        {variantList.map((name, i) => (
+          <button key={i} onClick={async () => {
+            const variants = await variantTable
+              .where("name")
+              .equals(name)
+              .toArray()
+            if (variants.length) {
+              setCalcs(variants[0].entries)
+            }
+          }}>{`Load ${name} variant`}</button>
+        ))}
         {calcs?.length ? (
           <Table<BudgetEntry>
             data={calculateBalances(calcs)
@@ -218,8 +283,6 @@ export default function Home() {
                 />
               ),
               (value, rowIndex) => {
-                console.log('date', value);
-                
                 return (
                   <input
                     type={"date"}
@@ -229,11 +292,16 @@ export default function Home() {
 
                       newCalcs[rowIndex] = {
                         ...newCalcs[rowIndex],
-                        date: parse(ev.target.value, timeInputFormat, new Date()),
+                        date: parse(
+                          ev.target.value,
+                          timeInputFormat,
+                          new Date()
+                        ),
                       };
 
                       setCalcs(newCalcs);
-                    } } />
+                    }}
+                  />
                 );
               },
               createInputRenderer(
@@ -248,7 +316,7 @@ export default function Home() {
                 BUDGET_ENTRY_KEYS.expense,
                 "number"
               ),
-              undefined,
+              createInputRenderer(calcs, setCalcs, BUDGET_ENTRY_KEYS.comment),
               createSelectRenderer(calcs, setCalcs, BUDGET_ENTRY_KEYS.account),
               (value: number) =>
                 new Intl.NumberFormat("ru-RU", {
@@ -295,16 +363,16 @@ export default function Home() {
                     onClick={() => {
                       const newCalcs = [...calcs];
                       const newRow = {
-                          isIncluded: true,
-                          date: new Date(),
-                          income: 0,
-                          expense: 0,
-                          comment: '',
-                          account: '',
-                          balanceIP: 0,
-                          balanceOOO: 0,
-                          balanceThird: 0,
-                          balanceFourth: 0,
+                        isIncluded: true,
+                        date: new Date(),
+                        income: 0,
+                        expense: 0,
+                        comment: "",
+                        account: "",
+                        balanceIP: 0,
+                        balanceOOO: 0,
+                        balanceThird: 0,
+                        balanceFourth: 0,
                       };
                       newCalcs.splice(rowNumber, 0, newRow);
                       setCalcs(calculateBalances(newCalcs));
