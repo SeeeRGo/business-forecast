@@ -1,38 +1,26 @@
 import Head from "next/head";
-import { Inter } from "@next/font/google";
 import styles from "@/styles/Home.module.css";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import Table from "../components/Table";
 import { ParsedBudgetEntry, ParsedConstantMoneyMove } from "../types";
-import { format, parse } from "date-fns";
 import { parseCalcs } from "../utils/parseCalcs";
 import { parseIncomes } from "../utils/parseIncomes";
 import { parseExpenses } from "../utils/parseExpenses";
 import { calculateBudget } from "../utils/utils";
-import { calculateBalances } from "../utils/calculateBalances";
-import {
-  createInputRenderer,
-  createSelectRenderer,
-} from "../utils/createInputRender";
-import { BUDGET_ENTRY_KEYS, timeInputFormat } from "../constants";
-import { variantTable } from "@/database.config";
-
-const inter = Inter({ subsets: ["latin"] });
-const url =
-  "https://script.google.com/macros/s/AKfycbwnvwyuUfil4NtQlAKdagrz6EJijWi88rpU9Ou1f9myqWWk65TVjKQ57VtLYm3Qsby7fg/exec";
+import { baseUrl } from "../constants";
+import { IncomeTable } from "@/views/IncomeTable";
+import { ExpenseTable } from "@/views/ExpenseTable";
+import { Settings } from "@/views/Settings";
+import { CalcsTable } from "@/views/CalcsTable";
 
 export default function Home() {
   const [calcs, setCalcs] = useState<ParsedBudgetEntry[]>([]);
   const [incomes, setIncomes] = useState<ParsedConstantMoneyMove[]>([]);
   const [expenses, setExpenses] = useState<ParsedConstantMoneyMove[]>([]);
-  const [experimentLength, setExperimentLength] = useState(1);
-  const [variantName, setVariantName] = useState('');
-  const [variantList, setVariantList] = useState<string[]>([]);
 
   useEffect(() => {
     async function get() {
-      const res = await axios.get(url);
+      const res = await axios.get(baseUrl);
       const parsedCalcs = parseCalcs(res.data.calcs);
       const parsedIncomes = parseIncomes(res.data.income);
       const parsedExpenses = parseExpenses(res.data.expense);
@@ -43,21 +31,13 @@ export default function Home() {
         parsedCalcs,
         parsedIncomes,
         parsedExpenses,
-        4
+        0
       );
       setCalcs(calculatedCalcs);
     }
     get();
   }, []);
-  useEffect(() => {
-    variantTable
-      .where("name")
-      .notEqual("")
-      .toArray()
-      .then((data) => setVariantList(data.map(({ name }) => name)));
-  }, [])
 
-  const calcHeaders = calculateBalances(calcs)[0];
   return (
     <>
       <Head>
@@ -67,341 +47,10 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.main}>
-        Постоянные доходы
-        {incomes?.length ? (
-          <>
-            <Table
-              data={incomes
-                .slice(1)
-                .map(
-                  ({ dayOfMonth, income, expense, description, account }) => [
-                    dayOfMonth,
-                    income,
-                    expense,
-                    description,
-                    account,
-                  ]
-                )}
-              headers={Object.values(incomes[0])}
-              renderFuncs={[
-                createInputRenderer(
-                  incomes,
-                  setIncomes,
-                  "dayOfMonth",
-                  "number"
-                ),
-                createInputRenderer(incomes, setIncomes, "income", "number"),
-                createInputRenderer(incomes, setIncomes, "expense", "number"),
-                createInputRenderer(incomes, setIncomes, "description"),
-                createSelectRenderer(incomes, setIncomes, "account"),
-              ]}
-            />
-            <button
-              onClick={() => {
-                const newIncome: ParsedConstantMoneyMove = {
-                  dayOfMonth: 15,
-                  income: 150000,
-                  expense: 0,
-                  description: 'New Income',
-                  account: 'OOO'
-                };
-                setIncomes([...incomes, newIncome]);
-              }}
-            >
-              Добавить постоянный доход
-            </button>
-          </>
-        ) : null}
-        Постоянные расходы
-        {expenses?.length ? (
-          <>
-            <Table
-              data={expenses
-                .slice(1)
-                .map(
-                  ({ dayOfMonth, income, expense, description, account }) => [
-                    dayOfMonth,
-                    income,
-                    expense,
-                    description,
-                    account,
-                  ]
-                )}
-              headers={Object.values(expenses[0])}
-              renderFuncs={[
-                createInputRenderer(
-                  expenses,
-                  setExpenses,
-                  "dayOfMonth",
-                  "number"
-                ),
-                createInputRenderer(expenses, setExpenses, "income", "number"),
-                createInputRenderer(expenses, setExpenses, "expense", "number"),
-                createInputRenderer(expenses, setExpenses, "description"),
-                createSelectRenderer(expenses, setExpenses, "account"),
-              ]}
-            />
-            <button
-              onClick={() => {
-                const newExpense: ParsedConstantMoneyMove = {
-                  dayOfMonth: 15,
-                  income: 0,
-                  expense: -50000,
-                  description: 'New Income',
-                  account: 'OOO'
-                };;
-                setExpenses([...expenses, newExpense]);
-              }}
-            >
-              Добавить постоянный расход
-            </button>
-          </>
-        ) : null}
-        <label htmlFor="experimentLength">
-          Продолжительность экстраполяции (месяцев)
-        </label>
-        <input
-          type={"number"}
-          name="experimentLength"
-          value={experimentLength}
-          onChange={(ev) => {
-            setExperimentLength(Math.floor(parseFloat(ev.target.value)));
-          }}
-        />
-        <button
-          onClick={async () => {
-            const res = await axios.get(url);
-            const parsedCalcs = parseCalcs(res.data.calcs);
-            const reCalcs = calculateBudget(
-              parsedCalcs,
-              incomes,
-              expenses,
-              experimentLength
-            );
-            setCalcs(reCalcs);
-          }}
-        >
-          Calculate
-        </button>
-        <button
-          onClick={() => {
-            const reCalcs = calculateBudget(calcs, [], [], 0);
-            setCalcs(reCalcs);
-          }}
-        >
-          Sort
-        </button>
-        <input value={variantName} onChange={(ev) => {
-          setVariantName(ev.target.value)
-        }} />
-        <button
-          onClick={async () => {
-            await variantTable.add({
-              name: variantName,
-              entries: calcs,
-            });
-          }}
-        >
-          Save Variant
-        </button>
-        {variantList.map((name, i) => (
-          <button key={i} onClick={async () => {
-            const variants = await variantTable
-              .where("name")
-              .equals(name)
-              .toArray()
-            if (variants.length) {
-              setCalcs(variants[0].entries)
-            }
-          }}>{`Load ${name} variant`}</button>
-        ))}
-        {calcs?.length ? (
-          <Table
-            data={calculateBalances(calcs)
-              .slice(1)
-              .map(
-                ({
-                  isIncluded,
-                  date,
-                  income,
-                  expense,
-                  comment,
-                  account,
-                  balanceIP,
-                  balanceOOO,
-                  balanceThird,
-                  balanceFourth,
-                }) => [
-                  isIncluded,
-                  date,
-                  income,
-                  expense,
-                  comment,
-                  account,
-                  balanceIP,
-                  balanceOOO,
-                  balanceThird,
-                  balanceFourth,
-                  "",
-                ]
-              )}
-            headers={[
-              calcHeaders.isIncluded,
-              calcHeaders.date,
-              calcHeaders.income,
-              calcHeaders.expense,
-              calcHeaders.comment,
-              calcHeaders.account,
-              calcHeaders.balanceIP,
-              calcHeaders.balanceOOO,
-              calcHeaders.balanceThird,
-              calcHeaders.balanceFourth,
-              "actions",
-            ] as string[]}
-            rowStylingRules={[
-              (row) => (row[0] ? {} : { opacity: 0.1 }),
-              (row) => (row[5] === "OOO" ? { backgroundColor: "#76ff03" } : {}),
-            ]}
-            renderFuncs={[
-              (value, rowIndex) => (
-                <input
-                  type={"checkbox"}
-                  checked={!!value}
-                  onChange={(ev) => {
-                    let newCalcs = [...calcs];
-
-                    newCalcs[rowIndex] = {
-                      ...newCalcs[rowIndex],
-                      isIncluded: ev.target.checked,
-                    };
-
-                    setCalcs(newCalcs);
-                  }}
-                />
-              ),
-              (value, rowIndex) => {
-                return value instanceof Date ? (
-                  <input
-                    type={"date"}
-                    value={format(value, timeInputFormat)}
-                    onChange={(ev) => {
-                      let newCalcs = [...calcs];
-
-                      newCalcs[rowIndex] = {
-                        ...newCalcs[rowIndex],
-                        date: parse(
-                          ev.target.value,
-                          timeInputFormat,
-                          new Date()
-                        ),
-                      };
-
-                      setCalcs(newCalcs);
-                    }}
-                  />
-                ) : <>{value}</>;
-              },
-              createInputRenderer(
-                calcs,
-                setCalcs,
-                BUDGET_ENTRY_KEYS.income,
-                "number"
-              ),
-              createInputRenderer(
-                calcs,
-                setCalcs,
-                BUDGET_ENTRY_KEYS.expense,
-                "number"
-              ),
-              createInputRenderer(calcs, setCalcs, BUDGET_ENTRY_KEYS.comment),
-              createSelectRenderer(calcs, setCalcs, BUDGET_ENTRY_KEYS.account),
-              (value) => (
-                <>
-                  {typeof value === 'number' ?
-                    new Intl.NumberFormat("ru-RU", {
-                      style: "currency",
-                      currency: "RUB",
-                    }).format(value) : value
-                  }
-                </>
-              ),
-              (value) => (
-                <>
-                  {typeof value === 'number' ?
-                    new Intl.NumberFormat("ru-RU", {
-                      style: "currency",
-                      currency: "RUB",
-                    }).format(value) : value
-                  }
-                </>
-              ),
-              (value) => (
-                <>
-                  {typeof value === 'number' ?
-                    new Intl.NumberFormat("ru-RU", {
-                      style: "currency",
-                      currency: "RUB",
-                    }).format(value) : value
-                  }
-                </>
-              ),
-              (value) => (
-                <>
-                  {typeof value === 'number' ?
-                    new Intl.NumberFormat("ru-RU", {
-                      style: "currency",
-                      currency: "RUB",
-                    }).format(value) : value
-                  }
-                </>
-              ),
-              (value, rowNumber) => (
-                <>
-                  <button
-                    onClick={() => {
-                      const newCalcs = [...calcs];
-                      newCalcs.splice(rowNumber, 1);
-                      setCalcs(newCalcs);
-                    }}
-                  >
-                    Del
-                  </button>
-                  <button
-                    onClick={() => {
-                      const newCalcs = [...calcs];
-                      const copy = calcs[rowNumber];
-                      newCalcs.splice(rowNumber, 0, copy);
-                      setCalcs(newCalcs);
-                    }}
-                  >
-                    Copy
-                  </button>
-                  <button
-                    onClick={() => {
-                      const newCalcs = [...calcs];
-                      const newRow: ParsedBudgetEntry = {
-                        isIncluded: true,
-                        date: new Date(),
-                        income: 0,
-                        expense: 0,
-                        comment: "",
-                        account: '',
-                        balanceIP: 0,
-                        balanceOOO: 0,
-                        balanceThird: 0,
-                        balanceFourth: 0,
-                      };
-                      newCalcs.splice(rowNumber, 0, newRow);
-                      setCalcs(calculateBalances(newCalcs));
-                    }}
-                  >
-                    Add Below
-                  </button>
-                </>
-              ),
-            ]}
-          />
-        ) : null}
+        <IncomeTable incomes={incomes} setIncomes={setIncomes} /> 
+        <ExpenseTable expenses={expenses} setExpenses={setExpenses} />
+        <Settings incomes={incomes} expenses={expenses} calcs={calcs} setCalcs={setCalcs} />
+        <CalcsTable calcs={calcs} setCalcs={setCalcs} /> 
       </main>
     </>
   );
