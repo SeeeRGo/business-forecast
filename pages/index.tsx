@@ -3,22 +3,19 @@ import { Inter } from "@next/font/google";
 import styles from "@/styles/Home.module.css";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Table } from "./components/Table";
-import { BudgetEntry, ConstantMoneyMove, ParsedBudgetEntry } from "./types";
+import Table from "../components/Table";
+import { ParsedBudgetEntry, ParsedConstantMoneyMove } from "../types";
 import { format, parse } from "date-fns";
-import { parseCalcs } from "./utils/parseCalcs";
-import { parseIncomes } from "./utils/parseIncomes";
-import { parseExpenses } from "./utils/parseExpenses";
-import { calculateBudget, sortBudgetEntries } from "./utils";
-import { calculateBalances } from "./utils/calculateBalances";
-import { AccountSelect } from "./components/AccountSelect";
-import { createOnChangeHandler } from "./utils/createOnChangeHandler";
-import { Input } from "./components/Input";
+import { parseCalcs } from "../utils/parseCalcs";
+import { parseIncomes } from "../utils/parseIncomes";
+import { parseExpenses } from "../utils/parseExpenses";
+import { calculateBudget } from "../utils/utils";
+import { calculateBalances } from "../utils/calculateBalances";
 import {
   createInputRenderer,
   createSelectRenderer,
-} from "./utils/createInputRender";
-import { BUDGET_ENTRY_KEYS, timeFormat, timeInputFormat } from "./constants";
+} from "../utils/createInputRender";
+import { BUDGET_ENTRY_KEYS, timeInputFormat } from "../constants";
 import { variantTable } from "@/database.config";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -27,8 +24,8 @@ const url =
 
 export default function Home() {
   const [calcs, setCalcs] = useState<ParsedBudgetEntry[]>([]);
-  const [incomes, setIncomes] = useState<ConstantMoneyMove[]>([]);
-  const [expenses, setExpenses] = useState<ConstantMoneyMove[]>([]);
+  const [incomes, setIncomes] = useState<ParsedConstantMoneyMove[]>([]);
+  const [expenses, setExpenses] = useState<ParsedConstantMoneyMove[]>([]);
   const [experimentLength, setExperimentLength] = useState(1);
   const [variantName, setVariantName] = useState('');
   const [variantList, setVariantList] = useState<string[]>([]);
@@ -101,13 +98,13 @@ export default function Home() {
             />
             <button
               onClick={() => {
-                const newIncome: ConstantMoneyMove = [
-                  15,
-                  150000,
-                  0,
-                  "New income",
-                  "OOO",
-                ];
+                const newIncome: ParsedConstantMoneyMove = {
+                  dayOfMonth: 15,
+                  income: 150000,
+                  expense: 0,
+                  description: 'New Income',
+                  account: 'OOO'
+                };
                 setIncomes([...incomes, newIncome]);
               }}
             >
@@ -146,13 +143,13 @@ export default function Home() {
             />
             <button
               onClick={() => {
-                const newExpense: ConstantMoneyMove = [
-                  5,
-                  0,
-                  -50000,
-                  "New expense",
-                  "OOO",
-                ];
+                const newExpense: ParsedConstantMoneyMove = {
+                  dayOfMonth: 15,
+                  income: 0,
+                  expense: -50000,
+                  description: 'New Income',
+                  account: 'OOO'
+                };;
                 setExpenses([...expenses, newExpense]);
               }}
             >
@@ -219,7 +216,7 @@ export default function Home() {
           }}>{`Load ${name} variant`}</button>
         ))}
         {calcs?.length ? (
-          <Table<BudgetEntry>
+          <Table
             data={calculateBalances(calcs)
               .slice(1)
               .map(
@@ -260,7 +257,7 @@ export default function Home() {
               calcHeaders.balanceThird,
               calcHeaders.balanceFourth,
               "actions",
-            ]}
+            ] as string[]}
             rowStylingRules={[
               (row) => (row[0] ? {} : { opacity: 0.1 }),
               (row) => (row[5] === "OOO" ? { backgroundColor: "#76ff03" } : {}),
@@ -269,7 +266,7 @@ export default function Home() {
               (value, rowIndex) => (
                 <input
                   type={"checkbox"}
-                  checked={value}
+                  checked={!!value}
                   onChange={(ev) => {
                     let newCalcs = [...calcs];
 
@@ -283,7 +280,7 @@ export default function Home() {
                 />
               ),
               (value, rowIndex) => {
-                return (
+                return value instanceof Date ? (
                   <input
                     type={"date"}
                     value={format(value, timeInputFormat)}
@@ -302,7 +299,7 @@ export default function Home() {
                       setCalcs(newCalcs);
                     }}
                   />
-                );
+                ) : <>{value}</>;
               },
               createInputRenderer(
                 calcs,
@@ -318,26 +315,46 @@ export default function Home() {
               ),
               createInputRenderer(calcs, setCalcs, BUDGET_ENTRY_KEYS.comment),
               createSelectRenderer(calcs, setCalcs, BUDGET_ENTRY_KEYS.account),
-              (value: number) =>
-                new Intl.NumberFormat("ru-RU", {
-                  style: "currency",
-                  currency: "RUB",
-                }).format(value),
-              (value: number) =>
-                new Intl.NumberFormat("ru-RU", {
-                  style: "currency",
-                  currency: "RUB",
-                }).format(value),
-              (value: number) =>
-                new Intl.NumberFormat("ru-RU", {
-                  style: "currency",
-                  currency: "RUB",
-                }).format(value || 0),
-              (value: number) =>
-                new Intl.NumberFormat("ru-RU", {
-                  style: "currency",
-                  currency: "RUB",
-                }).format(value || 0),
+              (value) => (
+                <>
+                  {typeof value === 'number' ?
+                    new Intl.NumberFormat("ru-RU", {
+                      style: "currency",
+                      currency: "RUB",
+                    }).format(value) : value
+                  }
+                </>
+              ),
+              (value) => (
+                <>
+                  {typeof value === 'number' ?
+                    new Intl.NumberFormat("ru-RU", {
+                      style: "currency",
+                      currency: "RUB",
+                    }).format(value) : value
+                  }
+                </>
+              ),
+              (value) => (
+                <>
+                  {typeof value === 'number' ?
+                    new Intl.NumberFormat("ru-RU", {
+                      style: "currency",
+                      currency: "RUB",
+                    }).format(value) : value
+                  }
+                </>
+              ),
+              (value) => (
+                <>
+                  {typeof value === 'number' ?
+                    new Intl.NumberFormat("ru-RU", {
+                      style: "currency",
+                      currency: "RUB",
+                    }).format(value) : value
+                  }
+                </>
+              ),
               (value, rowNumber) => (
                 <>
                   <button
@@ -362,13 +379,13 @@ export default function Home() {
                   <button
                     onClick={() => {
                       const newCalcs = [...calcs];
-                      const newRow = {
+                      const newRow: ParsedBudgetEntry = {
                         isIncluded: true,
                         date: new Date(),
                         income: 0,
                         expense: 0,
                         comment: "",
-                        account: "",
+                        account: '',
                         balanceIP: 0,
                         balanceOOO: 0,
                         balanceThird: 0,

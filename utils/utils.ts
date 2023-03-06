@@ -1,6 +1,5 @@
-import { add, parseISO } from "date-fns";
-import { ParsedBudgetEntry, ParsedConstantMoneyMove } from "./types";
-import { parseAccountType } from "./utils/parseAccountType";
+import { add } from "date-fns";
+import { ParsedBudgetEntry, ParsedConstantMoneyMove } from "../types";
 
 export const calculateBudget = (
   [head, initial, ...calcs]: ParsedBudgetEntry[],
@@ -35,8 +34,8 @@ export const sortBudgetEntries = (entries: ParsedBudgetEntry[]) =>
   entries.sort((a, b) => a.date.getTime() - b.date.getTime());
 
 const createBudgetEntriesFromMoneyMoves = (
-  { dayOfTheMonth, income, expense, description, account }: ParsedConstantMoneyMove,
-  baseDate: Date,
+  { dayOfMonth: dayOfTheMonth, income, expense, description, account }: ParsedConstantMoneyMove,
+  baseDate: Date | number,
   offset: number
 ): ParsedBudgetEntry => {
   return {

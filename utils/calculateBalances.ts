@@ -1,13 +1,13 @@
 import { AccountType, ParsedBudgetEntry } from "../types";
 
 const calcAddedBalance = (
-  income: number,
-  expense: number,
+  income: number | string,
+  expense: number | string,
   account: AccountType,
   targetAccount: AccountType
 ) =>
   account === targetAccount
-    ? (parseFloat(income) || 0) + (parseFloat(expense) || 0)
+    ? (parseFloat(`${income}`) || 0) + (parseFloat(`${expense}`) || 0)
     : 0;
 const calculateRowBalance = (
   prevRow: ParsedBudgetEntry,

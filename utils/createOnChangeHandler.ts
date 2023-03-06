@@ -1,3 +1,5 @@
+import { ChangeEvent } from "react";
+
 export const createOnChangeHandler =
   (
     state: any[][],

@@ -5,7 +5,7 @@ interface Props {
   value: InputHTMLAttributes<HTMLInputElement>['value'];
   onChange: InputHTMLAttributes<HTMLInputElement>['onChange'];
 }
-export const Input = ({ type, value, onChange }: Props) => {
+const Input = ({ type, value, onChange }: Props) => {
   return (
     <input
       type={type}
@@ -14,3 +14,5 @@ export const Input = ({ type, value, onChange }: Props) => {
     />
   );
 }
+
+export default Input;

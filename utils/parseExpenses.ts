@@ -1,6 +1,7 @@
+import { ParsedConstantMoneyMove } from "../types";
 import { parseAccountType } from "./parseAccountType";
 
-export const parseExpenses = (expenses: any[]) =>
+export const parseExpenses = (expenses: any[]): ParsedConstantMoneyMove[] =>
   expenses.map(([
     dayOfMonth,
     income,

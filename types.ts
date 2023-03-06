@@ -1,4 +1,4 @@
-export type RenderFunc = <T>(value: T, rowNumber: number) => React.ReactNode;
+export type RenderFunc = <T extends string | number | boolean | Date>(value: T, rowNumber: number) => React.ReactNode;
 export type AccountType = "IP" | "OOO" | "Third" | "Fourth" | '';
 
 export type BudgetEntry = [
@@ -37,7 +37,7 @@ export interface ParsedBudgetEntry {
 }
 
 export interface ParsedConstantMoneyMove {
-  dayOfTheMonth: number;
+  dayOfMonth: number;
   income: number;
   expense: number;
   description: string;

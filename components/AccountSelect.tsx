@@ -5,7 +5,7 @@ interface Props {
   value: AccountType
   onChange: SelectHTMLAttributes<HTMLSelectElement>['onChange']
 }
-export const AccountSelect = ({value, onChange}: Props) => {
+const AccountSelect = ({value, onChange}: Props) => {
   return (
     <select
       value={value}
@@ -19,3 +19,5 @@ export const AccountSelect = ({value, onChange}: Props) => {
     </select>
   );
 }
+
+export default AccountSelect;
