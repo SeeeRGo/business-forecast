@@ -7,7 +7,7 @@ export const createInputRenderer = (
     state: any[],
     setState: (newSt: any[]) => void,
     fieldName: string,
-    type: ComponentProps<typeof Input>['type']
+    type?: ComponentProps<typeof Input>['type']
   ) =>
   function CreatedInput(value, rowIndex) {
     return (
