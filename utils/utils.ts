@@ -16,9 +16,6 @@ export const calculateBudget = (
   );
   const baseDate = new Date(baseTimestamp).setDate(1);
   for (let i = offsetMonths; i < extrapolatedMonths + offsetMonths; i++) {
-    console.log('offsetMonths', offsetMonths);
-    console.log('i', i);
-    console.log('extrapolatedMonths + offsetMonths', extrapolatedMonths + offsetMonths);
     
     result = result.concat(
       incomes

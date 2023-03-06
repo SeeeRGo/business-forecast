@@ -18,7 +18,7 @@ export const IncomeTable = ({ incomes, setIncomes }: Props) => {
               dayOfMonth: 15,
               income: 150000,
               expense: 0,
-              description: 'New Income',
+              description: 'Новый доход',
               account: 'OOO'
             };
             setIncomes([...incomes, newIncome]);
@@ -39,9 +39,10 @@ export const IncomeTable = ({ incomes, setIncomes }: Props) => {
                     expense,
                     description,
                     account,
+                    ''
                   ]
                 )}
-              headers={Object.values(incomes[0])}
+              headers={[...Object.values(incomes[0]), 'actions']}
               renderFuncs={[
                 createInputRenderer(
                   incomes,
@@ -53,6 +54,19 @@ export const IncomeTable = ({ incomes, setIncomes }: Props) => {
                 createInputRenderer(incomes, setIncomes, "expense", "number"),
                 createInputRenderer(incomes, setIncomes, "description"),
                 createSelectRenderer(incomes, setIncomes, "account"),
+                (_, rowNumber) => (
+                  <>
+                    <button
+                      onClick={() => {
+                        const newIncomes = [...incomes];
+                        newIncomes.splice(rowNumber, 1);
+                        setIncomes(newIncomes);
+                      }}
+                    >
+                      Del
+                    </button>
+                  </>
+                ),
               ]}
             />
           </div>

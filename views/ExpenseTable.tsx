@@ -39,9 +39,10 @@ export const ExpenseTable = ({ expenses, setExpenses}: Props) => {
                     expense,
                     description,
                     account,
+                    ''
                   ]
                 )}
-              headers={Object.values(expenses[0])}
+              headers={[...Object.values(expenses[0]), 'actions']}
               renderFuncs={[
                 createInputRenderer(
                   expenses,
@@ -53,6 +54,19 @@ export const ExpenseTable = ({ expenses, setExpenses}: Props) => {
                 createInputRenderer(expenses, setExpenses, "expense", "number"),
                 createInputRenderer(expenses, setExpenses, "description"),
                 createSelectRenderer(expenses, setExpenses, "account"),
+                (_, rowNumber) => (
+                  <>
+                    <button
+                      onClick={() => {
+                        const newExpenses = [...expenses];
+                        newExpenses.splice(rowNumber, 1);
+                        setExpenses(newExpenses);
+                      }}
+                    >
+                      Del
+                    </button>
+                  </>
+                ),
               ]}
             />
           </div>
