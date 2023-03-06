@@ -2,7 +2,7 @@ import { baseUrl } from '@/constants';
 import { parseCalcs } from '@/utils/parseCalcs';
 import { calculateBudget } from '@/utils/utils';
 import axios from 'axios';
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { variantTable } from "@/database.config";
 import { ParsedBudgetEntry, ParsedConstantMoneyMove } from '@/types';
 
@@ -15,8 +15,19 @@ interface Props {
 export const Settings = ({ incomes, expenses, calcs, setCalcs }: Props) => {
   const [variantName, setVariantName] = useState('');
   const [experimentLength, setExperimentLength] = useState(0);
+  const [offsetLength, setOffsetLength] = useState(0);
   const [variantList, setVariantList] = useState<string[]>([]);
-
+  const calc = useCallback(() => {
+    const reCalcs = calculateBudget(
+      calcs,
+      incomes,
+      expenses,
+      experimentLength,
+      offsetLength
+    );
+    setCalcs(reCalcs);
+    setOffsetLength(offsetLength + experimentLength)
+  }, [calcs, incomes, expenses, experimentLength, offsetLength, setCalcs, setOffsetLength])
   useEffect(() => {
     variantTable
       .where("name")
@@ -26,7 +37,7 @@ export const Settings = ({ incomes, expenses, calcs, setCalcs }: Props) => {
   }, [])
   return (
     <>
-      <label htmlFor="experimentLength">
+      <label htmlFor="experimentLength" style={{ paddingBottom: 8 }}>
         Добавить <input
           type={"number"}
           name="experimentLength"
@@ -36,53 +47,53 @@ export const Settings = ({ incomes, expenses, calcs, setCalcs }: Props) => {
           }}
         /> месяцев регулярных доходов и расходов
         <button
-          onClick={async () => {
-            const res = await axios.get(baseUrl);
-            const parsedCalcs = parseCalcs(res.data.calcs);
-            const reCalcs = calculateBudget(
-              parsedCalcs,
-              incomes,
-              expenses,
-              experimentLength
-            );
-            setCalcs(reCalcs);
-          }}
+          onClick={calc}
         >
           Рассчитать
         </button>
       </label>
-      <input value={variantName} onChange={(ev) => {
-        setVariantName(ev.target.value)
-      }} />
-      <button
-        onClick={async () => {
-          await variantTable.add({
-            name: variantName,
-            entries: calcs,
-          });
-        }}
-      >
-        Save Variant
-      </button>
-      {variantList.map((name, i) => (
-        <button key={i} onClick={async () => {
-          const variants = await variantTable
-            .where("name")
-            .equals(name)
-            .toArray()
-          if (variants.length) {
-            setCalcs(variants[0].entries)
-          }
-        }}>{`Load ${name} variant`}</button>
-      ))}
-      <button
-        onClick={() => {
-          const reCalcs = calculateBudget(calcs, [], [], 0);
-          setCalcs(reCalcs);
-        }}
-      >
-        Sort
-      </button>
+      <span style={{ paddingBottom: 8 }}>
+        Сохранить вариант под названием
+        <input value={variantName} onChange={(ev) => {
+          setVariantName(ev.target.value)
+        }} />
+        <button
+          onClick={async () => {
+            await variantTable.add({
+              name: variantName,
+              entries: calcs,
+            });
+            setVariantList((val) => [...val, variantName])
+            setVariantName('')
+          }}
+        >
+          Сохранить
+        </button>
+      </span>
+      <span style={{ paddingBottom: variantList.length ? 8 : 0 }}>
+        {variantList.map((name, i) => (
+          <button key={i} style={{ marginRight: 8 }} onClick={async () => {
+            const variants = await variantTable
+              .where("name")
+              .equals(name)
+              .toArray()
+            if (variants.length) {
+              setCalcs(variants[0].entries)
+            }
+          }}>{`Load ${name} variant`}</button>
+        ))}
+      </span>
+      <span style={{ paddingBottom: 8 }}>
+        Расчёт варианта
+        <button
+          onClick={() => {
+            const reCalcs = calculateBudget(calcs, [], [], 0);
+            setCalcs(reCalcs);
+          }}
+        >
+          Отсортировать по дате
+        </button>
+      </span>
     </>
   )
 }

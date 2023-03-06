@@ -5,7 +5,8 @@ export const calculateBudget = (
   [head, initial, ...calcs]: ParsedBudgetEntry[],
   incomes: ParsedConstantMoneyMove[],
   expenses: ParsedConstantMoneyMove[],
-  extrapolatedMonths: number
+  extrapolatedMonths: number,
+  offsetMonths: number = 0
 ) => {
   let result = [...calcs];
   const baseTimestamp = calcs.reduce(
@@ -14,7 +15,11 @@ export const calculateBudget = (
     initial.date.getTime()
   );
   const baseDate = new Date(baseTimestamp).setDate(1);
-  for (let i = 0; i <= extrapolatedMonths; i++) {
+  for (let i = offsetMonths; i < extrapolatedMonths + offsetMonths; i++) {
+    console.log('offsetMonths', offsetMonths);
+    console.log('i', i);
+    console.log('extrapolatedMonths + offsetMonths', extrapolatedMonths + offsetMonths);
+    
     result = result.concat(
       incomes
         .slice(1)

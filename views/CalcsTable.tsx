@@ -61,7 +61,7 @@ export const CalcsTable = ({ calcs, setCalcs }: Props) => {
           ] as string[]}
           rowStylingRules={[
             (row) => (row[0] ? {} : { opacity: 0.1 }),
-            (row) => (row[5] === "OOO" ? { backgroundColor: "#76ff03" } : {}),
+            (row) => ({ backgroundColor: row[5] === "OOO" ? "#76ff03" : row[5] === "Third" ? "#348feb" : row[5] === "Fourth" ? "#fade0a" : "" }),
           ]}
           renderFuncs={[
             (value, rowIndex) => (
