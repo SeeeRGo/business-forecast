@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { SelectHTMLAttributes } from 'react'
 import { AccountType } from "../types";
 
 interface Props {
