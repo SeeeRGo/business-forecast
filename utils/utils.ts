@@ -1,8 +1,8 @@
 import { add } from "date-fns";
-import { ParsedBudgetEntry, ParsedConstantMoneyMove } from "../types";
+import { IAccount, ParsedBudgetEntry, ParsedConstantMoneyMove } from "../types";
 
 export const calculateBudget = (
-  [head, initial, ...calcs]: ParsedBudgetEntry[],
+  calcs: ParsedBudgetEntry[],
   incomes: ParsedConstantMoneyMove[],
   expenses: ParsedConstantMoneyMove[],
   extrapolatedMonths: number,
@@ -12,22 +12,23 @@ export const calculateBudget = (
   const baseTimestamp = calcs.reduce(
     (currentMin, entry) =>
       currentMin < entry.date.getTime() ? currentMin : entry.date.getTime(),
-    initial.date.getTime()
+      calcs.at(0)?.date.getTime() || 0
   );
+  const baseBalances = (calcs.at(0)?.balances ?? [] as IAccount[]).map(({ name }) => ({ name, balance: 0 }))
   const baseDate = new Date(baseTimestamp).setDate(1);
   for (let i = offsetMonths; i < extrapolatedMonths + offsetMonths; i++) {
     
     result = result.concat(
       incomes
-        .map((move) => createBudgetEntriesFromMoneyMoves(move, baseDate, i))
+        .map((move) => createBudgetEntriesFromMoneyMoves(move, baseDate, baseBalances , i))
     );
     result = result.concat(
       expenses
-        .map((move) => createBudgetEntriesFromMoneyMoves(move, baseDate, i))
+        .map((move) => createBudgetEntriesFromMoneyMoves(move, baseDate, baseBalances, i))
     );
   }
   const sortedByDate = sortBudgetEntries(result);
-  return [head, initial, ...sortedByDate];
+  return sortedByDate;
 };
 
 export const sortBudgetEntries = (entries: ParsedBudgetEntry[]) =>
@@ -36,6 +37,7 @@ export const sortBudgetEntries = (entries: ParsedBudgetEntry[]) =>
 const createBudgetEntriesFromMoneyMoves = (
   { dayOfMonth: dayOfTheMonth, income, expense, description, account }: ParsedConstantMoneyMove,
   baseDate: Date | number,
+  balances: IAccount[],
   offset: number
 ): ParsedBudgetEntry => {
   return {
@@ -45,9 +47,6 @@ const createBudgetEntriesFromMoneyMoves = (
     expense,
     comment: description,
     account,
-    balanceIP: 0,
-    balanceOOO: 0,
-    balanceThird: 0,
-    balanceFourth: 0,
+    balances
   };
 };
