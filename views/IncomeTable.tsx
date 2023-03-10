@@ -1,13 +1,17 @@
-import Table from '@/components/Table';
-import { ParsedConstantMoneyMove } from '@/types';
-import { createInputRenderer, createSelectRenderer } from '@/utils/createInputRender';
-import React from 'react'
+import Table from "@/components/Table";
+import { ParsedConstantMoneyMove } from "@/types";
+import {
+  createInputRenderer,
+  createSelectRenderer,
+} from "@/utils/createInputRender";
+import React from "react";
 
 interface Props {
-  incomes: ParsedConstantMoneyMove[]
-  setIncomes: (incomes: ParsedConstantMoneyMove[]) => void
+  incomes: ParsedConstantMoneyMove[];
+  headers: string[];
+  setIncomes: (incomes: ParsedConstantMoneyMove[]) => void;
 }
-export const IncomeTable = ({ incomes, setIncomes }: Props) => {
+export const IncomeTable = ({ incomes, headers, setIncomes }: Props) => {
   return (
     <>
       <span>
@@ -18,8 +22,8 @@ export const IncomeTable = ({ incomes, setIncomes }: Props) => {
               dayOfMonth: 15,
               income: 150000,
               expense: 0,
-              description: 'Новый доход',
-              account: 'OOO'
+              description: "Новый доход",
+              account: "OOO",
             };
             setIncomes([...incomes, newIncome]);
           }}
@@ -27,50 +31,42 @@ export const IncomeTable = ({ incomes, setIncomes }: Props) => {
           Добавить постоянный доход
         </button>
       </span>
-        {incomes.length ? (
-          <div style={{ paddingBottom: 16 }}>
-            <Table
-              data={incomes
-                .slice(1)
-                .map(
-                  ({ dayOfMonth, income, expense, description, account }) => [
-                    dayOfMonth,
-                    income,
-                    expense,
-                    description,
-                    account,
-                    ''
-                  ]
-                )}
-              headers={[...Object.values(incomes[0]), 'actions']}
-              renderFuncs={[
-                createInputRenderer(
-                  incomes,
-                  setIncomes,
-                  "dayOfMonth",
-                  "number"
-                ),
-                createInputRenderer(incomes, setIncomes, "income", "number"),
-                createInputRenderer(incomes, setIncomes, "expense", "number"),
-                createInputRenderer(incomes, setIncomes, "description"),
-                createSelectRenderer(incomes, setIncomes, "account"),
-                (_, rowNumber) => (
-                  <>
-                    <button
-                      onClick={() => {
-                        const newIncomes = [...incomes];
-                        newIncomes.splice(rowNumber, 1);
-                        setIncomes(newIncomes);
-                      }}
-                    >
-                      Del
-                    </button>
-                  </>
-                ),
-              ]}
-            />
-          </div>
-        ) : null}
+      {incomes.length ? (
+        <div style={{ paddingBottom: 16 }}>
+          <Table
+            data={incomes
+              .map(({ dayOfMonth, income, expense, description, account }) => [
+                dayOfMonth,
+                income,
+                expense,
+                description,
+                account,
+                "",
+              ])}
+            headers={headers}
+            renderFuncs={[
+              createInputRenderer(incomes, setIncomes, "dayOfMonth", "number"),
+              createInputRenderer(incomes, setIncomes, "income", "number"),
+              createInputRenderer(incomes, setIncomes, "expense", "number"),
+              createInputRenderer(incomes, setIncomes, "description"),
+              createSelectRenderer(incomes, setIncomes, "account"),
+              (_, rowNumber) => (
+                <>
+                  <button
+                    onClick={() => {
+                      const newIncomes = [...incomes];
+                      newIncomes.splice(rowNumber, 1);
+                      setIncomes(newIncomes);
+                    }}
+                  >
+                    Del
+                  </button>
+                </>
+              ),
+            ]}
+          />
+        </div>
+      ) : null}
     </>
-  )
-}
+  );
+};

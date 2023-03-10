@@ -24,7 +24,7 @@ const Table = <T extends any[]>({ headers, data, rowStylingRules = [], renderFun
         )}>
           {row?.map((value, index) => {
             const renderFunc = renderFuncs[index]
-            return <td key={index}>{renderFunc ? renderFunc(value, i + 1) : value}</td>
+            return <td key={index}>{renderFunc ? renderFunc(value, i) : value}</td>
           })}
         </tr>
       )

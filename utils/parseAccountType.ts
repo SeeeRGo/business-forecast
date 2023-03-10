@@ -1,6 +1,6 @@
 import { AccountType } from "../types"
 
-export const parseAccountType = (maybeAccountType: string): AccountType => {
+export const parseAccountType = (maybeAccountType: string): AccountType => {  
   switch (maybeAccountType) {
     case "Счёт рублевый ООО": return 'OOO'
     case 'Счёт рублевый ИП': return 'IP'

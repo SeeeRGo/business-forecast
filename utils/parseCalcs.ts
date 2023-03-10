@@ -2,10 +2,8 @@ import { parseISO } from "date-fns";
 import { BudgetEntry, ParsedBudgetEntry } from "../types";
 import { parseAccountType } from "./parseAccountType";
 
-const parseMoney = (maybeMoney: string, rowIndex: number) => {
-  return rowIndex === 0
-    ? maybeMoney
-    : rowIndex === 1 && maybeMoney
+const parseMoney = (maybeMoney: string) => {
+  return maybeMoney
     ? parseFloat(maybeMoney)
     : 0;
 }
@@ -17,9 +15,7 @@ export const parseCalcs = (calcs: BudgetEntry[]): ParsedBudgetEntry[] => {
         income,
         expense,
         comment,
-        _variantName,
         account,
-        _entry,
         balanceIP,
         balanceOOO,
         balanceThird,
@@ -28,17 +24,17 @@ export const parseCalcs = (calcs: BudgetEntry[]): ParsedBudgetEntry[] => {
       i
     ) => {
       return {
-        isIncluded: i === 0 ? 'Included' : true,
-        date: i === 0 ? date : parseISO(date),
-        income: income && i > 1 ? parseFloat(income) : income,
-        expense: expense && i > 1 ? parseFloat(expense) : expense,
+        isIncluded: true,
+        date:  parseISO(date),
+        income: parseFloat(income || '0'),
+        expense: parseFloat(expense || '0'),
         comment,
-        account: i === 0 ? account : parseAccountType(account),
-        balanceIP: parseMoney(balanceIP, i),
-        balanceOOO: parseMoney(balanceOOO, i),
-        balanceThird: parseMoney(balanceThird, i),
-        balanceFourth: parseMoney(balanceFourth, i),
-      } as ParsedBudgetEntry;
+        account: parseAccountType(account),
+        balanceIP: parseMoney(balanceIP),
+        balanceOOO: parseMoney(balanceOOO),
+        balanceThird: parseMoney(balanceThird),
+        balanceFourth: parseMoney(balanceFourth),
+      };
     }
   );
 };

@@ -14,5 +14,5 @@ export const BUDGET_ENTRY_KEYS = {
   balanceFourth: "balanceFourth",
 };
 
-export const baseUrl = 
-"https://script.google.com/macros/s/AKfycbwnvwyuUfil4NtQlAKdagrz6EJijWi88rpU9Ou1f9myqWWk65TVjKQ57VtLYm3Qsby7fg/exec";
+export const baseUrl =
+  "https://script.google.com/macros/s/AKfycbwnvwyuUfil4NtQlAKdagrz6EJijWi88rpU9Ou1f9myqWWk65TVjKQ57VtLYm3Qsby7fg/exec";

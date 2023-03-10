@@ -4,10 +4,11 @@ import { createInputRenderer, createSelectRenderer } from '@/utils/createInputRe
 import React from 'react'
 
 interface Props {
-  expenses: ParsedConstantMoneyMove[]
-  setExpenses: (expenses: ParsedConstantMoneyMove[]) => void
+  expenses: ParsedConstantMoneyMove[];
+  headers: string[];
+  setExpenses: (expenses: ParsedConstantMoneyMove[]) => void;
 }
-export const ExpenseTable = ({ expenses, setExpenses}: Props) => {
+export const ExpenseTable = ({ expenses, headers, setExpenses}: Props) => {
   return (
     <>
     <span>
@@ -31,7 +32,6 @@ export const ExpenseTable = ({ expenses, setExpenses}: Props) => {
           <div style={{ paddingBottom: 16 }}>
             <Table
               data={expenses
-                .slice(1)
                 .map(
                   ({ dayOfMonth, income, expense, description, account }) => [
                     dayOfMonth,
@@ -42,7 +42,7 @@ export const ExpenseTable = ({ expenses, setExpenses}: Props) => {
                     ''
                   ]
                 )}
-              headers={[...Object.values(expenses[0]), 'actions']}
+              headers={headers}
               renderFuncs={[
                 createInputRenderer(
                   expenses,

@@ -15,8 +15,14 @@ import { CalcsTable } from "@/views/CalcsTable";
 
 export default function Home() {
   const [calcs, setCalcs] = useState<ParsedBudgetEntry[]>([]);
+  const [calcHeaders, setCalcHeaders] = useState<string[]>([]);
+  const [calcInitial, setCalcInitial] = useState<ParsedBudgetEntry>();
+
   const [incomes, setIncomes] = useState<ParsedConstantMoneyMove[]>([]);
+  const [incomeHeaders, setIncomeHeaders] = useState<string[]>([])
+
   const [expenses, setExpenses] = useState<ParsedConstantMoneyMove[]>([]);
+  const [expenseHeaders, setExpenseHeaders] = useState<string[]>([]);
 
   useEffect(() => {
     async function get() {
@@ -24,8 +30,15 @@ export default function Home() {
       const parsedCalcs = parseCalcs(res.data.calcs);
       const parsedIncomes = parseIncomes(res.data.income);
       const parsedExpenses = parseExpenses(res.data.expense);
+      const { calcInitial, calcHeaders, incomeHeaders, expenceHeaders } =
+        res.data;
+      const [parsedInitial] = parseCalcs([calcInitial]);
 
+      setCalcInitial(parsedInitial)
+      setCalcHeaders(["included", ...calcHeaders, "actions"]);
+      setIncomeHeaders([...incomeHeaders, 'actions'])
       setIncomes(parsedIncomes);
+      setExpenseHeaders([...expenceHeaders, 'actions'])
       setExpenses(parsedExpenses);
       const calculatedCalcs = calculateBudget(
         parsedCalcs,
@@ -47,10 +60,10 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.main}>
-        <IncomeTable incomes={incomes} setIncomes={setIncomes} /> 
-        <ExpenseTable expenses={expenses} setExpenses={setExpenses} />
+        <IncomeTable incomes={incomes} headers={incomeHeaders} setIncomes={setIncomes} /> 
+        <ExpenseTable expenses={expenses} headers={expenseHeaders} setExpenses={setExpenses} />
         <Settings incomes={incomes} expenses={expenses} calcs={calcs} setCalcs={setCalcs} />
-        <CalcsTable calcs={calcs} setCalcs={setCalcs} /> 
+        <CalcsTable calcs={calcs} headers={calcHeaders} initialState={calcInitial} setCalcs={setCalcs} /> 
       </main>
     </>
   );

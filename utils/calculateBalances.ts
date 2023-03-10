@@ -10,11 +10,16 @@ const calcAddedBalance = (
     ? (parseFloat(`${income}`) || 0) + (parseFloat(`${expense}`) || 0)
     : 0;
 const calculateRowBalance = (
-  prevRow: ParsedBudgetEntry,
-  currentRow: ParsedBudgetEntry
+  currentRow: ParsedBudgetEntry,
+  prevRow?: ParsedBudgetEntry,
 ) => {
   const { account, income, expense } = currentRow;
-  const { balanceFourth, balanceIP, balanceOOO, balanceThird } = prevRow;
+  const { balanceFourth, balanceIP, balanceOOO, balanceThird } = prevRow ?? {
+    balanceFourth: 0,
+    balanceIP: 0,
+    balanceOOO: 0,
+    balanceThird: 0,
+  };
   
   return {
     ...currentRow,
@@ -25,13 +30,16 @@ const calculateRowBalance = (
     balanceThird: balanceThird + calcAddedBalance(income, expense, account, 'Third'),
   };
 };
-export const calculateBalances = (values: ParsedBudgetEntry[]) => {
-  const result = [values[0], values[1]];
-  for (let i = 2; i < values.length; i++) {
+export const calculateBalances = (
+  values: ParsedBudgetEntry[],
+  initialState?: ParsedBudgetEntry
+) => {
+  const result = [];
+  for (let i = 0; i < values.length; i++) {
     const currentRow = values[i];
-    const prevRow = result[i - 1];
-    const updatedCurrentRow = calculateRowBalance(prevRow, currentRow);
+    const prevRow = result.length ? result[i - 1] : initialState;
+    const updatedCurrentRow = calculateRowBalance(currentRow, prevRow);
     result.push(updatedCurrentRow);
-  }
+  }  
   return result;
 };

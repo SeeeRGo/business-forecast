@@ -19,12 +19,10 @@ export const calculateBudget = (
     
     result = result.concat(
       incomes
-        .slice(1)
         .map((move) => createBudgetEntriesFromMoneyMoves(move, baseDate, i))
     );
     result = result.concat(
       expenses
-        .slice(1)
         .map((move) => createBudgetEntriesFromMoneyMoves(move, baseDate, i))
     );
   }

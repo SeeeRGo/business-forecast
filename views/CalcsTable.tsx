@@ -1,67 +1,66 @@
-import Table from '@/components/Table';
-import { BUDGET_ENTRY_KEYS, timeInputFormat } from '@/constants';
-import { ParsedBudgetEntry } from '@/types';
-import { calculateBalances } from '@/utils/calculateBalances';
-import { createInputRenderer, createSelectRenderer } from '@/utils/createInputRender';
-import { format, parse } from 'date-fns';
-import React from 'react'
+import { Balance } from "@/components/Balance";
+import Table from "@/components/Table";
+import { BUDGET_ENTRY_KEYS, timeInputFormat } from "@/constants";
+import { ParsedBudgetEntry } from "@/types";
+import { calculateBalances } from "@/utils/calculateBalances";
+import {
+  createInputRenderer,
+  createSelectRenderer,
+} from "@/utils/createInputRender";
+import { format, parse } from "date-fns";
+import React from "react";
 
 interface Props {
-  calcs: ParsedBudgetEntry[]
-  setCalcs: (calcs: ParsedBudgetEntry[]) => void
+  calcs: ParsedBudgetEntry[];
+  headers: string[];
+  initialState?: ParsedBudgetEntry;
+  setCalcs: (calcs: ParsedBudgetEntry[]) => void;
 }
-export const CalcsTable = ({ calcs, setCalcs }: Props) => {
-
-  const calcHeaders = calculateBalances(calcs)[0];
+export const CalcsTable = ({ calcs, headers, initialState, setCalcs }: Props) => {
 
   return (
     <>
       {calcs.length ? (
         <Table
-          data={calculateBalances(calcs)
-            .slice(1)
-            .map(
-              ({
-                isIncluded,
-                date,
-                income,
-                expense,
-                comment,
-                account,
-                balanceIP,
-                balanceOOO,
-                balanceThird,
-                balanceFourth,
-              }) => [
-                isIncluded,
-                date,
-                income,
-                expense,
-                comment,
-                account,
-                balanceIP,
-                balanceOOO,
-                balanceThird,
-                balanceFourth,
-                "",
-              ]
-            )}
-          headers={[
-            calcHeaders.isIncluded,
-            calcHeaders.date,
-            calcHeaders.income,
-            calcHeaders.expense,
-            calcHeaders.comment,
-            calcHeaders.account,
-            calcHeaders.balanceIP,
-            calcHeaders.balanceOOO,
-            calcHeaders.balanceThird,
-            calcHeaders.balanceFourth,
-            "actions",
-          ] as string[]}
+          data={calculateBalances(calcs, initialState).map(
+            ({
+              isIncluded,
+              date,
+              income,
+              expense,
+              comment,
+              account,
+              balanceIP,
+              balanceOOO,
+              balanceThird,
+              balanceFourth,
+            }) => [
+              isIncluded,
+              date,
+              income,
+              expense,
+              comment,
+              account,
+              balanceIP,
+              balanceOOO,
+              balanceThird,
+              balanceFourth,
+              "",
+            ]
+          )}
+          headers={headers}
           rowStylingRules={[
             (row) => (row[0] ? {} : { opacity: 0.1 }),
-            (row) => ({ backgroundColor: row[5] === "OOO" ? "#76ff03" : row[5] === "Third" ? "#348feb" : row[5] === "Fourth" ? "#fade0a" : "" }),
+            (row) => ({
+              backgroundColor:
+                row[5] === "OOO"
+                  ? "#76ff03"
+                  : row[5] === "Third"
+                  ? "#348feb"
+                  : row[5] === "Fourth"
+                  ? "#fade0a"
+                  : "",
+            }),
           ]}
           renderFuncs={[
             (value, rowIndex) => (
@@ -90,17 +89,15 @@ export const CalcsTable = ({ calcs, setCalcs }: Props) => {
 
                     newCalcs[rowIndex] = {
                       ...newCalcs[rowIndex],
-                      date: parse(
-                        ev.target.value,
-                        timeInputFormat,
-                        new Date()
-                      ),
+                      date: parse(ev.target.value, timeInputFormat, new Date()),
                     };
 
                     setCalcs(newCalcs);
                   }}
                 />
-              ) : <>{value}</>;
+              ) : (
+                <>{value}</>
+              );
             },
             createInputRenderer(
               calcs,
@@ -118,42 +115,22 @@ export const CalcsTable = ({ calcs, setCalcs }: Props) => {
             createSelectRenderer(calcs, setCalcs, BUDGET_ENTRY_KEYS.account),
             (value) => (
               <>
-                {typeof value === 'number' ?
-                  new Intl.NumberFormat("ru-RU", {
-                    style: "currency",
-                    currency: "RUB",
-                  }).format(value) : value
-                }
+                {typeof value === "number" ? <Balance value={value} /> : value}
               </>
             ),
             (value) => (
               <>
-                {typeof value === 'number' ?
-                  new Intl.NumberFormat("ru-RU", {
-                    style: "currency",
-                    currency: "RUB",
-                  }).format(value) : value
-                }
+                {typeof value === "number" ? <Balance value={value} /> : value}
               </>
             ),
             (value) => (
               <>
-                {typeof value === 'number' ?
-                  new Intl.NumberFormat("ru-RU", {
-                    style: "currency",
-                    currency: "RUB",
-                  }).format(value) : value
-                }
+                {typeof value === "number" ? <Balance value={value} /> : value}
               </>
             ),
             (value) => (
               <>
-                {typeof value === 'number' ?
-                  new Intl.NumberFormat("ru-RU", {
-                    style: "currency",
-                    currency: "RUB",
-                  }).format(value) : value
-                }
+                {typeof value === "number" ? <Balance value={value} /> : value}
               </>
             ),
             (_, rowNumber) => (
@@ -186,7 +163,7 @@ export const CalcsTable = ({ calcs, setCalcs }: Props) => {
                       income: 0,
                       expense: 0,
                       comment: "",
-                      account: '',
+                      account: "",
                       balanceIP: 0,
                       balanceOOO: 0,
                       balanceThird: 0,
@@ -204,5 +181,5 @@ export const CalcsTable = ({ calcs, setCalcs }: Props) => {
         />
       ) : null}
     </>
-  )
-}
+  );
+};

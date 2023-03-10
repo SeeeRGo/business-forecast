@@ -10,8 +10,8 @@ export const parseExpenses = (expenses: any[]): ParsedConstantMoneyMove[] =>
     account,
   ], i) => ({
     dayOfMonth,
-    income: i === 0 || !income ? income : parseFloat(income),
-    expense: i === 0 || !expense ? expense : parseFloat(expense),
+    income: !income ? income : parseFloat(income),
+    expense: !expense ? expense : parseFloat(expense),
     description,
-    account: i === 0 ? account : parseAccountType(account)
+    account: parseAccountType(account)
   }));
