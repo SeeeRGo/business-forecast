@@ -1,5 +1,4 @@
 export type RenderFunc = <T extends string | number | boolean | Date>(value: T, rowNumber: number) => React.ReactNode;
-export type AccountType = "IP" | "OOO" | "Third" | "Fourth" | '';
 
 export type BudgetEntry = [
   date: string,
@@ -9,10 +8,7 @@ export type BudgetEntry = [
   variantName: string,
   account: string,
   entry: string,
-  balanceIP: string,
-  balanceOOO: string,
-  balanceThird: string,
-  balanceFourth: string
+  ...rest: string[]
 ];
 
 export type ConstantMoneyMove = [
@@ -20,7 +16,7 @@ export type ConstantMoneyMove = [
   income: number,
   expense: number,
   description: string,
-  account: AccountType
+  account: string
 ];
 
 export interface ParsedBudgetEntry {
@@ -29,11 +25,8 @@ export interface ParsedBudgetEntry {
   income: number;
   expense: number;
   comment: string;
-  account: AccountType;
-  balanceIP: number;
-  balanceOOO: number;
-  balanceThird: number;
-  balanceFourth: number;
+  account: string;
+  balances: IAccount[];
 }
 
 export interface ParsedConstantMoneyMove {
@@ -41,7 +34,12 @@ export interface ParsedConstantMoneyMove {
   income: number;
   expense: number;
   description: string;
-  account: AccountType;
+  account: string;
+}
+
+export interface IAccount {
+  name: string
+  balance: number
 }
 export interface IVariant {
   name: string;

@@ -1,13 +1,7 @@
 import { parseISO } from "date-fns";
 import { BudgetEntry, ParsedBudgetEntry } from "../types";
-import { parseAccountType } from "./parseAccountType";
 
-const parseMoney = (maybeMoney: string) => {
-  return maybeMoney
-    ? parseFloat(maybeMoney)
-    : 0;
-}
-export const parseCalcs = (calcs: BudgetEntry[]): ParsedBudgetEntry[] => {
+export const parseCalcs = (calcs: BudgetEntry[], headers: string[]): ParsedBudgetEntry[] => {
   return calcs.map(
     (
       [
@@ -16,10 +10,7 @@ export const parseCalcs = (calcs: BudgetEntry[]): ParsedBudgetEntry[] => {
         expense,
         comment,
         account,
-        balanceIP,
-        balanceOOO,
-        balanceThird,
-        balanceFourth,
+        ...rest
       ]: BudgetEntry,
       i
     ) => {
@@ -29,11 +20,11 @@ export const parseCalcs = (calcs: BudgetEntry[]): ParsedBudgetEntry[] => {
         income: parseFloat(income || '0'),
         expense: parseFloat(expense || '0'),
         comment,
-        account: parseAccountType(account),
-        balanceIP: parseMoney(balanceIP),
-        balanceOOO: parseMoney(balanceOOO),
-        balanceThird: parseMoney(balanceThird),
-        balanceFourth: parseMoney(balanceFourth),
+        account,
+        balances: rest.map((_, i) => ({
+          balance: 0,
+          name: headers.at(i) || ''
+        }))
       };
     }
   );

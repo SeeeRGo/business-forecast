@@ -1,21 +1,19 @@
-import React, { SelectHTMLAttributes } from 'react'
-import { AccountType } from "../types";
+import React from 'react'
 
 interface Props {
-  value: AccountType
-  onChange: SelectHTMLAttributes<HTMLSelectElement>['onChange']
+  value: string
+  onChange: (value: string) => void
+  options: string[]
 }
-const AccountSelect = ({value, onChange}: Props) => {
+const AccountSelect = ({value, onChange, options}: Props) => {
   return (
     <select
       value={value}
-      onChange={onChange}
+      onChange={(ev) => onChange(ev.target.value)}
     >
-      <option value={""}></option>
-      <option value={"IP"}>Счёт рублевый ИП</option>
-      <option value={"OOO"}>Счёт рублевый ООО</option>
-      <option value={"Third"}>Счёт 3</option>
-      <option value={"Fourth"}>Счёт 4</option>
+      {options.map(option => (
+        <option value={option} key={option}>{option}</option>
+      ))}
     </select>
   );
 }

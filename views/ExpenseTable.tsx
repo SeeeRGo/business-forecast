@@ -7,8 +7,9 @@ interface Props {
   expenses: ParsedConstantMoneyMove[];
   headers: string[];
   setExpenses: (expenses: ParsedConstantMoneyMove[]) => void;
+  selectOptions: string[]
 }
-export const ExpenseTable = ({ expenses, headers, setExpenses}: Props) => {
+export const ExpenseTable = ({ expenses, headers, setExpenses, selectOptions}: Props) => {
   return (
     <>
     <span>
@@ -48,12 +49,12 @@ export const ExpenseTable = ({ expenses, headers, setExpenses}: Props) => {
                   expenses,
                   setExpenses,
                   "dayOfMonth",
-                  "number"
+                  {type: "number", min: 1, max: 31}
                 ),
-                createInputRenderer(expenses, setExpenses, "income", "number"),
-                createInputRenderer(expenses, setExpenses, "expense", "number"),
+                createInputRenderer(expenses, setExpenses, "income", {type: "number", min: 0}),
+                createInputRenderer(expenses, setExpenses, "expense", {type: "number", max: 0}),
                 createInputRenderer(expenses, setExpenses, "description"),
-                createSelectRenderer(expenses, setExpenses, "account"),
+                createSelectRenderer(expenses, setExpenses, "account", selectOptions),
                 (_, rowNumber) => (
                   <>
                     <button

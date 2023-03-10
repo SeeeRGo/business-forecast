@@ -10,8 +10,9 @@ interface Props {
   incomes: ParsedConstantMoneyMove[];
   headers: string[];
   setIncomes: (incomes: ParsedConstantMoneyMove[]) => void;
+  selectOptions: string[]
 }
-export const IncomeTable = ({ incomes, headers, setIncomes }: Props) => {
+export const IncomeTable = ({ incomes, headers, setIncomes, selectOptions }: Props) => {
   return (
     <>
       <span>
@@ -45,11 +46,11 @@ export const IncomeTable = ({ incomes, headers, setIncomes }: Props) => {
               ])}
             headers={headers}
             renderFuncs={[
-              createInputRenderer(incomes, setIncomes, "dayOfMonth", "number"),
-              createInputRenderer(incomes, setIncomes, "income", "number"),
-              createInputRenderer(incomes, setIncomes, "expense", "number"),
+              createInputRenderer(incomes, setIncomes, "dayOfMonth", {type: "number"}),
+              createInputRenderer(incomes, setIncomes, "income", {type: "number"}),
+              createInputRenderer(incomes, setIncomes, "expense", {type: "number"}),
               createInputRenderer(incomes, setIncomes, "description"),
-              createSelectRenderer(incomes, setIncomes, "account"),
+              createSelectRenderer(incomes, setIncomes, "account", selectOptions),
               (_, rowNumber) => (
                 <>
                   <button

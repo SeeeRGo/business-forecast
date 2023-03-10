@@ -1,5 +1,3 @@
-import { ChangeEvent } from "react";
-
 export const createOnChangeHandler =
   (
     state: any[][],
@@ -7,13 +5,14 @@ export const createOnChangeHandler =
     rowIndex: number,
     fieldName: string,
   ) =>
-  (ev: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  (value: string) => {
     let newState = [...state];
 
     newState[rowIndex] = {
       ...newState[rowIndex],
-      [fieldName]: ev.target.value
+      [fieldName]: value
     };
 
     setState(newState);
   };
+  
