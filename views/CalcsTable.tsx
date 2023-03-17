@@ -9,6 +9,9 @@ import {
 } from "@/utils/createInputRender";
 import { format, parse } from "date-fns";
 import React from "react";
+import DeleteIcon from '@mui/icons-material/Delete';
+import ContentCopy from "@mui/icons-material/ContentCopy";
+import { ArrowDownward, ArrowUpward } from "@mui/icons-material";
 
 interface Props {
   calcs: ParsedBudgetEntry[];
@@ -22,7 +25,7 @@ export const CalcsTable = ({ calcs, headers, initialState, setCalcs, selectOptio
   
   return (
     <>
-      {calcs.length ? (
+      {data.length ? (
         <Table
           data={data.map(
             ({
@@ -109,26 +112,14 @@ export const CalcsTable = ({ calcs, headers, initialState, setCalcs, selectOptio
             ),
             createInputRenderer(calcs, setCalcs, BUDGET_ENTRY_KEYS.comment),
             createSelectRenderer(calcs, setCalcs, BUDGET_ENTRY_KEYS.account, selectOptions),
-            (value) => (
-              <>
-                {typeof value === "number" ? <Balance value={value} /> : value}
-              </>
-            ),
-            (value) => (
-              <>
-                {typeof value === "number" ? <Balance value={value} /> : value}
-              </>
-            ),
-            (value) => (
-              <>
-                {typeof value === "number" ? <Balance value={value} /> : value}
-              </>
-            ),
-            (value) => (
-              <>
-                {typeof value === "number" ? <Balance value={value} /> : value}
-              </>
-            ),
+            
+            ...data[0].balances.map(() => function CreateBalanceDisplay(value: string | number | boolean | Date) {
+              return (
+                <>
+                  {typeof value === "number" ? <Balance value={value} /> : value}
+                </>
+              )
+            } ),
             (_, rowNumber) => (
               <>
                 <button
@@ -138,7 +129,7 @@ export const CalcsTable = ({ calcs, headers, initialState, setCalcs, selectOptio
                     setCalcs(newCalcs);
                   }}
                 >
-                  Del
+                  <DeleteIcon fontSize='inherit' />
                 </button>
                 <button
                   onClick={() => {
@@ -148,14 +139,15 @@ export const CalcsTable = ({ calcs, headers, initialState, setCalcs, selectOptio
                     setCalcs(newCalcs);
                   }}
                 >
-                  Copy
+                  <ContentCopy fontSize='inherit' />
                 </button>
                 <button
                   onClick={() => {
                     const newCalcs = [...calcs];
+                    const copy = calcs[rowNumber];
                     const newRow: ParsedBudgetEntry = {
                       isIncluded: true,
-                      date: new Date(),
+                      date: copy.date,
                       income: 0,
                       expense: 0,
                       comment: "",
@@ -169,7 +161,29 @@ export const CalcsTable = ({ calcs, headers, initialState, setCalcs, selectOptio
                     setCalcs(calculateBalances(newCalcs));
                   }}
                 >
-                  Add Below
+                  + Ряд <ArrowUpward fontSize='inherit' />
+                </button>
+                <button
+                  onClick={() => {
+                    const newCalcs = [...calcs];
+                    const copy = calcs[rowNumber];
+                    const newRow: ParsedBudgetEntry = {
+                      isIncluded: true,
+                      date: copy.date,
+                      income: 0,
+                      expense: 0,
+                      comment: "",
+                      account: "",
+                      balances: calcs[0].balances.map(({ balance, ...rest}) => ({
+                        balance: 0,
+                        ...rest
+                      }))
+                    };
+                    newCalcs.splice(rowNumber + 1, 0, newRow);
+                    setCalcs(calculateBalances(newCalcs));
+                  }}
+                >
+                  + Ряд <ArrowDownward fontSize='inherit' />
                 </button>
               </>
             ),

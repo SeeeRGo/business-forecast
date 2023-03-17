@@ -1,10 +1,10 @@
 import { add } from "date-fns";
-import { IAccount, ParsedBudgetEntry, ParsedConstantMoneyMove } from "../types";
+import { IAccount, ParsedBudgetEntry, ParsedConstantMoneyMove, ParsedExpenses, ParsedIncomes } from "../types";
 
 export const calculateBudget = (
   calcs: ParsedBudgetEntry[],
-  incomes: ParsedConstantMoneyMove[],
-  expenses: ParsedConstantMoneyMove[],
+  incomes: ParsedIncomes[],
+  expenses: ParsedExpenses[],
   extrapolatedMonths: number,
   offsetMonths: number = 0
 ) => {
@@ -20,11 +20,17 @@ export const calculateBudget = (
     
     result = result.concat(
       incomes
-        .map((move) => createBudgetEntriesFromMoneyMoves(move, baseDate, baseBalances , i))
+        .map((move) => createBudgetEntriesFromMoneyMoves({
+          ...move,
+          expense: 0,
+        }, baseDate, baseBalances , i))
     );
     result = result.concat(
       expenses
-        .map((move) => createBudgetEntriesFromMoneyMoves(move, baseDate, baseBalances, i))
+        .map((move) => createBudgetEntriesFromMoneyMoves({
+          ...move,
+          income: 0,
+        }, baseDate, baseBalances, i))
     );
   }
   const sortedByDate = sortBudgetEntries(result);

@@ -1,15 +1,16 @@
 import Table from "@/components/Table";
-import { ParsedConstantMoneyMove } from "@/types";
+import { ParsedConstantMoneyMove, ParsedIncomes } from "@/types";
 import {
   createInputRenderer,
   createSelectRenderer,
 } from "@/utils/createInputRender";
+import { Delete } from "@mui/icons-material";
 import React from "react";
 
 interface Props {
-  incomes: ParsedConstantMoneyMove[];
+  incomes: ParsedIncomes[];
   headers: string[];
-  setIncomes: (incomes: ParsedConstantMoneyMove[]) => void;
+  setIncomes: (incomes: ParsedIncomes[]) => void;
   selectOptions: string[]
 }
 export const IncomeTable = ({ incomes, headers, setIncomes, selectOptions }: Props) => {
@@ -19,10 +20,9 @@ export const IncomeTable = ({ incomes, headers, setIncomes, selectOptions }: Pro
         Постоянные доходы
         <button
           onClick={() => {
-            const newIncome: ParsedConstantMoneyMove = {
+            const newIncome: ParsedIncomes = {
               dayOfMonth: 15,
               income: 150000,
-              expense: 0,
               description: "Новый доход",
               account: "OOO",
             };
@@ -36,10 +36,9 @@ export const IncomeTable = ({ incomes, headers, setIncomes, selectOptions }: Pro
         <div style={{ paddingBottom: 16 }}>
           <Table
             data={incomes
-              .map(({ dayOfMonth, income, expense, description, account }) => [
+              .map(({ dayOfMonth, income, description, account }) => [
                 dayOfMonth,
                 income,
-                expense,
                 description,
                 account,
                 "",
@@ -48,7 +47,6 @@ export const IncomeTable = ({ incomes, headers, setIncomes, selectOptions }: Pro
             renderFuncs={[
               createInputRenderer(incomes, setIncomes, "dayOfMonth", {type: "number"}),
               createInputRenderer(incomes, setIncomes, "income", {type: "number"}),
-              createInputRenderer(incomes, setIncomes, "expense", {type: "number"}),
               createInputRenderer(incomes, setIncomes, "description"),
               createSelectRenderer(incomes, setIncomes, "account", selectOptions),
               (_, rowNumber) => (
@@ -60,7 +58,7 @@ export const IncomeTable = ({ incomes, headers, setIncomes, selectOptions }: Pro
                       setIncomes(newIncomes);
                     }}
                   >
-                    Del
+                    <Delete fontSize='inherit' />
                   </button>
                 </>
               ),

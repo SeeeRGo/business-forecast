@@ -1,15 +1,13 @@
-import { ParsedConstantMoneyMove } from "../types";
+import { ParsedExpenses } from "../types";
 
-export const parseExpenses = (expenses: any[]): ParsedConstantMoneyMove[] =>
+export const parseExpenses = (expenses: any[]): ParsedExpenses[] =>
   expenses.map(([
     dayOfMonth,
-    income,
     expense,
     description,
     account,
   ], i) => ({
     dayOfMonth,
-    income: !income ? income : parseFloat(income),
     expense: !expense ? expense : parseFloat(expense),
     description,
     account,

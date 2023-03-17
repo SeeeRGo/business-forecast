@@ -1,12 +1,13 @@
 import Table from '@/components/Table';
-import { ParsedConstantMoneyMove } from '@/types';
+import { ParsedConstantMoneyMove, ParsedExpenses } from '@/types';
 import { createInputRenderer, createSelectRenderer } from '@/utils/createInputRender';
+import { Delete } from '@mui/icons-material';
 import React from 'react'
 
 interface Props {
-  expenses: ParsedConstantMoneyMove[];
+  expenses: ParsedExpenses[];
   headers: string[];
-  setExpenses: (expenses: ParsedConstantMoneyMove[]) => void;
+  setExpenses: (expenses: ParsedExpenses[]) => void;
   selectOptions: string[]
 }
 export const ExpenseTable = ({ expenses, headers, setExpenses, selectOptions}: Props) => {
@@ -16,9 +17,8 @@ export const ExpenseTable = ({ expenses, headers, setExpenses, selectOptions}: P
       Постоянные расходы
       <button
         onClick={() => {
-          const newExpense: ParsedConstantMoneyMove = {
+          const newExpense: ParsedExpenses = {
             dayOfMonth: 15,
-            income: 0,
             expense: -50000,
             description: 'Новый расход',
             account: 'OOO'
@@ -34,9 +34,8 @@ export const ExpenseTable = ({ expenses, headers, setExpenses, selectOptions}: P
             <Table
               data={expenses
                 .map(
-                  ({ dayOfMonth, income, expense, description, account }) => [
+                  ({ dayOfMonth, expense, description, account }) => [
                     dayOfMonth,
-                    income,
                     expense,
                     description,
                     account,
@@ -51,7 +50,6 @@ export const ExpenseTable = ({ expenses, headers, setExpenses, selectOptions}: P
                   "dayOfMonth",
                   {type: "number", min: 1, max: 31}
                 ),
-                createInputRenderer(expenses, setExpenses, "income", {type: "number", min: 0}),
                 createInputRenderer(expenses, setExpenses, "expense", {type: "number", max: 0}),
                 createInputRenderer(expenses, setExpenses, "description"),
                 createSelectRenderer(expenses, setExpenses, "account", selectOptions),
@@ -64,7 +62,7 @@ export const ExpenseTable = ({ expenses, headers, setExpenses, selectOptions}: P
                         setExpenses(newExpenses);
                       }}
                     >
-                      Del
+                      <Delete fontSize='inherit' />
                     </button>
                   </>
                 ),

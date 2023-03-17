@@ -2,7 +2,7 @@ import Head from "next/head";
 import styles from "@/styles/Home.module.css";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { IAccount, ParsedBudgetEntry, ParsedConstantMoneyMove } from "../types";
+import { IAccount, ParsedBudgetEntry, ParsedExpenses, ParsedIncomes } from "../types";
 import { parseCalcs } from "../utils/parseCalcs";
 import { parseIncomes } from "../utils/parseIncomes";
 import { parseExpenses } from "../utils/parseExpenses";
@@ -13,16 +13,17 @@ import { ExpenseTable } from "@/views/ExpenseTable";
 import { Settings } from "@/views/Settings";
 import { CalcsTable } from "@/views/CalcsTable";
 import { parseAccounts } from "@/utils/parseAccounts";
+import { IncomeTableNew } from "@/views/IncomeTableNew";
 
 export default function Home() {
   const [calcs, setCalcs] = useState<ParsedBudgetEntry[]>([]);
   const [calcHeaders, setCalcHeaders] = useState<string[]>([]);
   const [initialBalance, setInitialBalance] = useState<IAccount[]>([]);
 
-  const [incomes, setIncomes] = useState<ParsedConstantMoneyMove[]>([]);
+  const [incomes, setIncomes] = useState<ParsedIncomes[]>([]);
   const [incomeHeaders, setIncomeHeaders] = useState<string[]>([])
 
-  const [expenses, setExpenses] = useState<ParsedConstantMoneyMove[]>([]);
+  const [expenses, setExpenses] = useState<ParsedExpenses[]>([]);
   const [expenseHeaders, setExpenseHeaders] = useState<string[]>([]);
 
   useEffect(() => {
@@ -34,7 +35,6 @@ export default function Home() {
       const { calcInitial, calcHeaders, incomeHeaders, expenceHeaders } =
         res.data;
       const parsedInitial = parseAccounts(calcHeaders.slice(5), calcInitial.slice(5));
-
       setInitialBalance(parsedInitial)
       setCalcHeaders(calcHeaders);
       setIncomeHeaders([...incomeHeaders, 'actions'])
@@ -61,6 +61,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.main}>
+        {/* <IncomeTableNew data={incomes} /> */}
         <IncomeTable incomes={incomes} headers={incomeHeaders} setIncomes={setIncomes} selectOptions={calcHeaders.slice(5)} /> 
         <ExpenseTable expenses={expenses} headers={expenseHeaders} setExpenses={setExpenses} selectOptions={calcHeaders.slice(5)} />
         <Settings incomes={incomes} expenses={expenses} calcInitial={initialBalance} calcs={calcs} setCalcInitial={setInitialBalance} setCalcs={setCalcs} />

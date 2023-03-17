@@ -29,6 +29,20 @@ export interface ParsedBudgetEntry {
   balances: IAccount[];
 }
 
+export interface ParsedIncomes {
+  dayOfMonth: number;
+  income: number;
+  description: string;
+  account: string;
+}
+
+export interface ParsedExpenses {
+  dayOfMonth: number;
+  expense: number;
+  description: string;
+  account: string;
+}
+
 export interface ParsedConstantMoneyMove {
   dayOfMonth: number;
   income: number;

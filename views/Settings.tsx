@@ -1,15 +1,12 @@
-import { baseUrl } from '@/constants';
-import { parseCalcs } from '@/utils/parseCalcs';
 import { calculateBudget } from '@/utils/utils';
-import axios from 'axios';
 import React, { useCallback, useEffect, useState } from 'react'
 import { variantTable } from "@/database.config";
-import { IAccount, ParsedBudgetEntry, ParsedConstantMoneyMove } from '@/types';
+import { IAccount, ParsedBudgetEntry, ParsedExpenses, ParsedIncomes } from '@/types';
 import { InitialBalancesSettings } from './InitialBalancesSettings';
 
 interface Props {
-  incomes: ParsedConstantMoneyMove[]
-  expenses: ParsedConstantMoneyMove[]
+  incomes: ParsedIncomes[]
+  expenses: ParsedExpenses[]
   calcs: ParsedBudgetEntry[]
   calcInitial: IAccount[]
   setCalcInitial: (values: IAccount[]) => void
