@@ -29,7 +29,7 @@ export const calculateBudget = (
       expenses
         .map((move) => createBudgetEntriesFromMoneyMoves({
           ...move,
-          income: 0,
+          income: 0
         }, baseDate, baseBalances, i))
     );
   }

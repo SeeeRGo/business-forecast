@@ -7,11 +7,13 @@ import {
   createInputRenderer,
   createSelectRenderer,
 } from "@/utils/createInputRender";
-import { format, parse } from "date-fns";
+import { format, parse, parseISO } from "date-fns";
 import React from "react";
 import DeleteIcon from '@mui/icons-material/Delete';
 import ContentCopy from "@mui/icons-material/ContentCopy";
 import { ArrowDownward, ArrowUpward } from "@mui/icons-material";
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 
 interface Props {
   calcs: ParsedBudgetEntry[];
@@ -79,21 +81,26 @@ export const CalcsTable = ({ calcs, headers, initialState, setCalcs, selectOptio
               />
             ),
             (value, rowIndex) => {
+              console.log('value', value);
+              
               return value instanceof Date ? (
-                <input
-                  type={"date"}
-                  value={format(value, timeInputFormat)}
-                  onChange={(ev) => {
-                    let newCalcs = [...calcs];
-
-                    newCalcs[rowIndex] = {
-                      ...newCalcs[rowIndex],
-                      date: parse(ev.target.value, timeInputFormat, new Date()),
-                    };
-
-                    setCalcs(newCalcs);
-                  }}
-                />
+                // <LocalizationProvider dateAdapter={AdapterDateFns}>
+                //   <DatePicker label="Basic date picker"
+                //   value={format(value, timeInputFormat)}
+                //   onChange={(value) => {
+                    
+                //     let newCalcs = [...calcs];
+  
+                //     newCalcs[rowIndex] = {
+                //       ...newCalcs[rowIndex],
+                //       date: value ? parseISO(value) : newCalcs[rowIndex].date,
+                //     };
+  
+                //     setCalcs(newCalcs);
+                //   }}
+                //   />
+                // </LocalizationProvider>
+                <>DATE</>
               ) : (
                 <>{value}</>
               );

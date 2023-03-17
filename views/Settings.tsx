@@ -33,8 +33,6 @@ export const Settings = ({ incomes, expenses, calcs, setCalcs, calcInitial, setC
   useEffect( () => {
     supabase.from('calculations').select('name').then(({ data }) => setVariantList(data?.map(({ name }) => name) ?? []))
   }, [])
-
-  console.log('variantList', variantList);
   
   return (
     <div style={{ display: 'flex' }}>
