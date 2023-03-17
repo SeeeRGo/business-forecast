@@ -12,8 +12,8 @@ export const InitialBalancesSettings = ({ accounts, updateAccounts }: Props) => 
     <div>
       Текущее состояние счетов
       {accounts.map(({ name, balance }, i) => (
-        <>
-          <div key={name}>
+        <React.Fragment key={name}>
+          <div>
             {name}
             &nbsp;
             Баланс
@@ -32,7 +32,7 @@ export const InitialBalancesSettings = ({ accounts, updateAccounts }: Props) => 
               updateAccounts(newState);
             }}
           />
-        </>
+        </React.Fragment>
       ))}
     </div>
   )

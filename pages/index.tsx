@@ -15,6 +15,7 @@ import { CalcsTable } from "@/views/CalcsTable";
 import { parseAccounts } from "@/utils/parseAccounts";
 import { IncomeTableNew } from "@/views/IncomeTableNew";
 
+
 export default function Home() {
   const [calcs, setCalcs] = useState<ParsedBudgetEntry[]>([]);
   const [calcHeaders, setCalcHeaders] = useState<string[]>([]);
@@ -24,7 +25,7 @@ export default function Home() {
   const [incomeHeaders, setIncomeHeaders] = useState<string[]>([])
 
   const [expenses, setExpenses] = useState<ParsedExpenses[]>([]);
-  const [expenseHeaders, setExpenseHeaders] = useState<string[]>([]);
+  const [expenseHeaders, setExpenseHeaders] = useState<string[]>([]);  
 
   useEffect(() => {
     async function get() {

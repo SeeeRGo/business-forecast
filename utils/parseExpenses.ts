@@ -6,7 +6,7 @@ export const parseExpenses = (expenses: any[]): ParsedExpenses[] =>
     expense,
     description,
     account,
-  ], i) => ({
+  ]) => ({
     dayOfMonth,
     expense: !expense ? expense : parseFloat(expense),
     description,

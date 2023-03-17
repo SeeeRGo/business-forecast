@@ -1,8 +1,8 @@
 import { calculateBudget } from '@/utils/utils';
 import React, { useCallback, useEffect, useState } from 'react'
-import { variantTable } from "@/database.config";
 import { IAccount, ParsedBudgetEntry, ParsedExpenses, ParsedIncomes } from '@/types';
 import { InitialBalancesSettings } from './InitialBalancesSettings';
+import { supabase } from '@/utils/db';
 
 interface Props {
   incomes: ParsedIncomes[]
@@ -12,6 +12,7 @@ interface Props {
   setCalcInitial: (values: IAccount[]) => void
   setCalcs: (calcs: ParsedBudgetEntry[]) => void
 }
+
 export const Settings = ({ incomes, expenses, calcs, setCalcs, calcInitial, setCalcInitial }: Props) => {
   const [variantName, setVariantName] = useState('');
   const [experimentLength, setExperimentLength] = useState(0);
@@ -28,13 +29,13 @@ export const Settings = ({ incomes, expenses, calcs, setCalcs, calcInitial, setC
     setCalcs(reCalcs);
     setOffsetLength(offsetLength + experimentLength)
   }, [calcs, incomes, expenses, experimentLength, offsetLength, setCalcs, setOffsetLength])
-  useEffect(() => {
-    variantTable
-      .where("name")
-      .notEqual("")
-      .toArray()
-      .then((data) => setVariantList(data.map(({ name }) => name)));
+
+  useEffect( () => {
+    supabase.from('calculations').select('name').then(({ data }) => setVariantList(data?.map(({ name }) => name) ?? []))
   }, [])
+
+  console.log('variantList', variantList);
+  
   return (
     <div style={{ display: 'flex' }}>
       <InitialBalancesSettings accounts={calcInitial} updateAccounts={setCalcInitial} /> 
@@ -61,10 +62,9 @@ export const Settings = ({ incomes, expenses, calcs, setCalcs, calcInitial, setC
           }} />
           <button
             onClick={async () => {
-              await variantTable.add({
-                name: variantName,
-                entries: calcs,
-              });
+              const { error } = await supabase
+                .from('calculations')
+                .insert({ name: variantName, values: JSON.stringify(calcs) })
               setVariantList((val) => [...val, variantName])
               setVariantName('')
             }}
@@ -75,12 +75,13 @@ export const Settings = ({ incomes, expenses, calcs, setCalcs, calcInitial, setC
         <span style={{ paddingBottom: variantList.length ? 8 : 0 }}>
           {variantList.map((name, i) => (
             <button key={i} style={{ marginRight: 8 }} onClick={async () => {
-              const variants = await variantTable
-                .where("name")
-                .equals(name)
-                .toArray()
-              if (variants.length) {
-                setCalcs(variants[0].entries)
+              const { data: variants } = await supabase
+                .from('calculations')
+                .select()
+                .eq('name', name)
+
+              if (variants?.length) {
+                setCalcs(JSON.parse(variants[0].values))
               }
             }}>{`Load ${name} variant`}</button>
           ))}
