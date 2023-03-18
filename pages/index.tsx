@@ -66,7 +66,7 @@ export default function Home() {
         <IncomeTable incomes={incomes} headers={incomeHeaders} setIncomes={setIncomes} selectOptions={calcHeaders.slice(5)} /> 
         <ExpenseTable expenses={expenses} headers={expenseHeaders} setExpenses={setExpenses} selectOptions={calcHeaders.slice(5)} />
         <Settings incomes={incomes} expenses={expenses} calcInitial={initialBalance} calcs={calcs} setCalcInitial={setInitialBalance} setCalcs={setCalcs} />
-        <CalcsTable calcs={calcs} headers={["included", ...calcHeaders, "actions"]} initialState={initialBalance} setCalcs={setCalcs} selectOptions={calcHeaders.slice(5)} /> 
+        <CalcsTable calcs={calcs} headers={["Учитывать", "Выбрано", ...calcHeaders, "Действия"]} initialState={initialBalance} setCalcs={setCalcs} selectOptions={calcHeaders.slice(5)} /> 
       </main>
     </>
   );

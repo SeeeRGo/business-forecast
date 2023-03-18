@@ -21,6 +21,8 @@ export type ConstantMoneyMove = [
 
 export interface ParsedBudgetEntry {
   isIncluded: boolean;
+  isSelected: boolean;
+  id: string;
   date: Date;
   income: number;
   expense: number;
@@ -31,12 +33,14 @@ export interface ParsedBudgetEntry {
 
 export interface ParsedIncomes {
   dayOfMonth: number;
+  id: string;
   income: number;
   description: string;
   account: string;
 }
 
 export interface ParsedExpenses {
+  id: string;
   dayOfMonth: number;
   expense: number;
   description: string;

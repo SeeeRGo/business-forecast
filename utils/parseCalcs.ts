@@ -1,5 +1,6 @@
 import { parseISO } from "date-fns";
 import { BudgetEntry, ParsedBudgetEntry } from "../types";
+import { v4 as uuidv4 } from "uuid";
 
 export const parseCalcs = (calcs: BudgetEntry[], headers: string[]): ParsedBudgetEntry[] => {
   return calcs.map(
@@ -16,6 +17,8 @@ export const parseCalcs = (calcs: BudgetEntry[], headers: string[]): ParsedBudge
     ) => {
       return {
         isIncluded: true,
+        isSelected: false,
+        id: uuidv4(),
         date:  parseISO(date),
         income: parseFloat(income || '0'),
         expense: parseFloat(expense || '0'),
