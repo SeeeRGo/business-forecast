@@ -8,6 +8,7 @@ import React, { useEffect, useState } from "react";
 import { calcTableRenderFuncs } from "@/configs/calcsTable";
 import { IconButton, Typography } from "@mui/material";
 import { Sort } from "@mui/icons-material";
+import { calculateBudget } from "@/utils/utils";
 
 interface Props {
   calcs: ParsedBudgetEntry[];

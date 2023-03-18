@@ -14,7 +14,6 @@ export const createInputRenderer = (
     return typeof value === "string" || typeof value === "number" ? (
       <Input
         value={value}
-        name={`${fieldName}${rowIndex}`}
         onChange={createOnChangeHandler(state, setState, rowIndex, fieldName)}
         {...inputProps}
       />
@@ -38,7 +37,6 @@ export const createTextAreaRenderer = (
         }}
         multiline
         maxRows={4}
-        name={`${fieldName}${rowIndex}`}
         value={value}
         onChange={(ev) => {
           return createOnChangeHandler(

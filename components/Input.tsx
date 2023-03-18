@@ -4,7 +4,6 @@ import React, { InputHTMLAttributes, useCallback } from 'react'
 interface Props {
   type?: InputHTMLAttributes<HTMLInputElement>["type"];
   value: InputHTMLAttributes<HTMLInputElement>['value'];
-  name: string;
   min?: number;
   max?: number;
   onChange?: (value: string) => void;
@@ -30,7 +29,6 @@ const Input = ({ type, value, onChange, min, max }: Props) => {
           maxWidth: 100,
         },
       }}
-      name={name}
       value={value}
       type={type}
       onChange={ (ev) => {

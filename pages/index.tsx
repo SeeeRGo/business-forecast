@@ -96,7 +96,7 @@ export default function Home() {
         />
         <CalcsTable
           calcs={calcs}
-          headers={["Учитывать", "Выбрано", ...calcHeaders, "Действия"]}
+          headers={["Учет", "Выбор", ...calcHeaders, "Действия"]}
           initialState={initialBalance}
           setCalcs={setCalcs}
           selectOptions={calcHeaders.slice(5)}
