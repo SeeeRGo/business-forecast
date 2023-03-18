@@ -49,6 +49,7 @@ export interface ParsedExpenses {
 
 export interface ParsedConstantMoneyMove {
   dayOfMonth: number;
+  id: string;
   income: number;
   expense: number;
   description: string;

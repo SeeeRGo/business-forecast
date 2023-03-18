@@ -6,6 +6,7 @@ import {
 } from "@/utils/createInputRender";
 import { Delete } from "@mui/icons-material";
 import React from "react";
+import { v4 as uuidv4 } from "uuid";
 
 interface Props {
   incomes: ParsedIncomes[];
@@ -22,6 +23,7 @@ export const IncomeTable = ({ incomes, headers, setIncomes, selectOptions }: Pro
           onClick={() => {
             const newIncome: ParsedIncomes = {
               dayOfMonth: 15,
+              id: uuidv4(),
               income: 150000,
               description: "Новый доход",
               account: "OOO",

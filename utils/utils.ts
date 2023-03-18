@@ -41,13 +41,15 @@ export const sortBudgetEntries = (entries: ParsedBudgetEntry[]) =>
   entries.sort((a, b) => a.date.getTime() - b.date.getTime());
 
 const createBudgetEntriesFromMoneyMoves = (
-  { dayOfMonth: dayOfTheMonth, income, expense, description, account }: ParsedConstantMoneyMove,
+  { dayOfMonth: dayOfTheMonth, income, expense, description, account, id }: ParsedConstantMoneyMove,
   baseDate: Date | number,
   balances: IAccount[],
   offset: number
 ): ParsedBudgetEntry => {
   return {
     isIncluded: true,
+    isSelected: false,
+    id,
     date: add(baseDate, { months: offset, days: dayOfTheMonth - 1 }),
     income,
     expense,

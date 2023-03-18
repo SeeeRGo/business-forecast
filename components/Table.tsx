@@ -16,7 +16,7 @@ const Table = <T extends any[]>({ headers, data, rowStylingRules = [], renderFun
       <tbody>
         {data.map((row, i) => {
           return (
-            <tr key={row.id} style={rowStylingRules.reduce(
+            <tr key={i} style={rowStylingRules.reduce(
               (acc, rules) => ({
                 ...acc,
                 ...rules(row),

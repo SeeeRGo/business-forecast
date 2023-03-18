@@ -7,7 +7,6 @@ import {
   createInputRenderer,
   createSelectRenderer,
 } from "@/utils/createInputRender";
-import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { format, parse, parseISO } from "date-fns";
 import React, { useEffect, useState } from "react";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -17,7 +16,6 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import de from "date-fns/locale/de";
 import { v4 as uuidv4 } from "uuid";
-import _ from "lodash";
 
 interface Props {
   calcs: ParsedBudgetEntry[];
@@ -27,17 +25,17 @@ interface Props {
   selectOptions: string[];
 }
 
-const useKeyPress = (targetKey) => {
+const useKeyPress = (targetKey: string) => {
   const [keyPressed, setKeyPressed] = useState(false);
 
   useEffect(() => {
-    const downHandler = ({ key }) => {
+    const downHandler = ({ key }: KeyboardEvent) => {
       if (key === targetKey) {
         setKeyPressed(true);
       }
     };
 
-    const upHandler = ({ key }) => {
+    const upHandler = ({ key }: KeyboardEvent) => {
       if (key === targetKey) {
         setKeyPressed(false);
       }
@@ -284,6 +282,7 @@ export const CalcsTable = ({
                     const copy = calcs[rowNumber];
                     const newRow: ParsedBudgetEntry = {
                       isIncluded: true,
+                      isSelected: false,
                       date: copy.date,
                       income: 0,
                       expense: 0,
@@ -309,6 +308,7 @@ export const CalcsTable = ({
                     const copy = calcs[rowNumber];
                     const newRow: ParsedBudgetEntry = {
                       isIncluded: true,
+                      isSelected: false,
                       date: copy.date,
                       income: 0,
                       expense: 0,

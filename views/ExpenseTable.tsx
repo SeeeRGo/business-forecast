@@ -3,6 +3,7 @@ import { ParsedConstantMoneyMove, ParsedExpenses } from '@/types';
 import { createInputRenderer, createSelectRenderer } from '@/utils/createInputRender';
 import { Delete } from '@mui/icons-material';
 import React from 'react'
+import { v4 as uuidv4 } from "uuid";
 
 interface Props {
   expenses: ParsedExpenses[];
@@ -20,8 +21,9 @@ export const ExpenseTable = ({ expenses, headers, setExpenses, selectOptions}: P
           const newExpense: ParsedExpenses = {
             dayOfMonth: 15,
             expense: -50000,
-            description: 'Новый расход',
-            account: 'OOO'
+            id: uuidv4(),
+            description: "Новый расход",
+            account: "OOO",
           };
           setExpenses([...expenses, newExpense]);
         }}
