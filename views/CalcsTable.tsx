@@ -6,6 +6,8 @@ import { calculateBalances } from "@/utils/calculateBalances";
 import { format, parse, parseISO } from "date-fns";
 import React, { useEffect, useState } from "react";
 import { calcTableRenderFuncs } from "@/configs/calcsTable";
+import { IconButton, Typography } from "@mui/material";
+import { Sort } from "@mui/icons-material";
 
 interface Props {
   calcs: ParsedBudgetEntry[];
@@ -31,18 +33,20 @@ const useKeyPress = (targetKey: string) => {
       }
     };
 
-    window.addEventListener("keydown", (ev) => {
-      ev.preventDefault();
-      downHandler(ev);
-    });
-    window.addEventListener("keyup", (ev) => {
-      ev.preventDefault();
-      upHandler(ev);
-    });
+    const prevent = (ev: KeyboardEvent) => {
+      if (["ArrowUp", "ArrowDown"].indexOf(ev.code) > -1) {
+        ev.preventDefault();
+      }
+    };
+
+    window.addEventListener("keydown", downHandler);
+    window.addEventListener("keyup", upHandler);
+    window.addEventListener("keydown", prevent);
 
     return () => {
       window.removeEventListener("keydown", downHandler);
       window.removeEventListener("keyup", upHandler);
+      window.removeEventListener("keydown", prevent);
     };
   }, [targetKey]);
 
@@ -145,7 +149,23 @@ export const CalcsTable = ({
               "",
             ]
           )}
-          headers={headers}
+          headers={headers.map((header) =>
+            header === "Дата" ? (
+              <span key={header} style={{ paddingBottom: 8 }}>
+                {header}
+                <IconButton
+                  onClick={() => {
+                    const reCalcs = calculateBudget(calcs, [], [], 0);
+                    setCalcs(reCalcs);
+                  }}
+                >
+                  <Sort />
+                </IconButton>
+              </span>
+            ) : (
+              <Typography key={header}>{header}</Typography>
+            )
+          )}
           rowStylingRules={[
             (row) => (row[0] ? {} : { opacity: 0.1 }),
             (row) => ({
@@ -159,7 +179,12 @@ export const CalcsTable = ({
                   : "",
             }),
           ]}
-          renderFuncs={calcTableRenderFuncs(calcs, setCalcs, selectOptions, data)}
+          renderFuncs={calcTableRenderFuncs(
+            calcs,
+            setCalcs,
+            selectOptions,
+            data
+          )}
         />
       ) : null}
     </>

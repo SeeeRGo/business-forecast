@@ -3,8 +3,9 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { IAccount, ParsedBudgetEntry, ParsedExpenses, ParsedIncomes } from '@/types';
 import { InitialBalancesSettings } from './InitialBalancesSettings';
 import { supabase } from '@/utils/db';
-import { add, differenceInCalendarMonths, format } from 'date-fns';
+import { add, differenceInCalendarMonths, format, isValid } from 'date-fns';
 import { ru } from "date-fns/locale";
+import { Button, Typography } from '@mui/material';
 
 interface Props {
   incomes: ParsedIncomes[]
@@ -38,43 +39,60 @@ export const Settings = ({ incomes, expenses, calcs, setCalcs, calcInitial, setC
   const sortedCalcs = sortBudgetEntries(calcs);
   const earliestDate = sortedCalcs.at(0)?.date;
   const latestDate = sortedCalcs.at(-1)?.date;
-  const earliestMonth = earliestDate ? format(earliestDate, 'LLLL', {locale: ru }) : 'Не удалось вычислить'
-  const latestMonth = latestDate
+  const earliestMonth =
+    earliestDate && isValid(earliestDate)
+      ? format(earliestDate, "MMMM", { locale: ru })
+      : "какого-то месяца";
+  const latestMonth = latestDate && isValid(latestDate)
     ? format(latestDate, "LLLL", { locale: ru })
-    : "Не удалось вычислить";
-  const nextDate = latestDate
-    ? add(latestDate, { months: 1 })
-    : undefined;
-  const nextMonth = nextDate
-    ? format(nextDate, "LLLL", { locale: ru })
-    : undefined;
+    : "какой-то месяц";
+  const nextDate =
+    latestDate && isValid(latestDate)
+      ? add(latestDate, { months: 1 })
+      : undefined;
+  const nextMonth =
+    nextDate && isValid(nextDate)
+      ? format(nextDate, "LLLL", { locale: ru })
+      : undefined;
   const currentOffset =
-    nextDate && earliestDate
+    nextDate && earliestDate && isValid(earliestDate) && isValid(nextDate)
       ? differenceInCalendarMonths(nextDate, earliestDate)
       : 0;
   
   return (
-    <div style={{ display: "flex" }}>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "space-between",
+        columnGap: "16px",
+      }}
+    >
       <InitialBalancesSettings
         accounts={calcInitial}
         updateAccounts={setCalcInitial}
       />
       <div style={{ display: "flex", flexDirection: "column" }}>
-        <div>Начальный месяц расчета - {earliestMonth} </div>
-        <div>Конечный месяц расчета - {latestMonth} </div>
-        <button onClick={() => {
-          if(currentOffset) {
-            const reCalcs = calculateBudget(
-              calcs,
-              incomes,
-              expenses,
-              1,
-              currentOffset
-            );
-            setCalcs(reCalcs);
-          }
-        }}>Добавить {nextMonth}</button>
-        <label htmlFor="experimentLength" style={{ paddingBottom: 8 }}>
+        <Typography variant="h6">
+          Расчет с {earliestMonth} по {latestMonth}
+        </Typography>
+        <Button
+          onClick={() => {
+            if (currentOffset) {
+              const reCalcs = calculateBudget(
+                calcs,
+                incomes,
+                expenses,
+                1,
+                currentOffset
+              );
+              setCalcs(reCalcs);
+            }
+          }}
+        >
+          Добавить {nextMonth}
+        </Button>
+        {/* <label htmlFor="experimentLength" style={{ paddingBottom: 8 }}>
           Добавить{" "}
           <input
             type={"number"}
@@ -86,32 +104,34 @@ export const Settings = ({ incomes, expenses, calcs, setCalcs, calcInitial, setC
           />{" "}
           месяцев регулярных доходов и расходов
           <button onClick={calc}>Рассчитать</button>
-        </label>
-        <span style={{ paddingBottom: 8 }}>
-          Сохранить вариант под названием
-          <input
-            value={variantName}
-            onChange={(ev) => {
-              setVariantName(ev.target.value);
-            }}
-          />
-          <button
-            onClick={async () => {
-              const { error } = await supabase
-                .from("calculations")
-                .insert({ name: variantName, values: JSON.stringify(calcs) });
-              setVariantList((val) => [...val, variantName]);
-              setVariantName("");
-            }}
-          >
-            Сохранить
-          </button>
-        </span>
-        <span style={{ paddingBottom: variantList.length ? 8 : 0 }}>
+        </label> */}
+      </div>
+      <div style={{ paddingBottom: 8 }}>
+        <Typography variant="h6">Название варианта:</Typography>
+        <input
+          value={variantName}
+          onChange={(ev) => {
+            setVariantName(ev.target.value);
+          }}
+        />
+        <Button
+          onClick={async () => {
+            const { error } = await supabase
+              .from("calculations")
+              .insert({ name: variantName, values: JSON.stringify(calcs) });
+            setVariantList((val) => [...val, variantName]);
+            setVariantName("");
+          }}
+        >
+          Сохранить
+        </Button>
+      </div>
+      <div style={{ paddingBottom: variantList.length ? 8 : 0 }}>
+        <Typography variant="h6">Загрузить вариант</Typography>
+        <div>
           {variantList.map((name, i) => (
-            <button
+            <Button
               key={i}
-              style={{ marginRight: 8 }}
               onClick={async () => {
                 const { data: variants } = await supabase
                   .from("calculations")
@@ -122,20 +142,11 @@ export const Settings = ({ incomes, expenses, calcs, setCalcs, calcInitial, setC
                   setCalcs(JSON.parse(variants[0].values));
                 }
               }}
-            >{`Load ${name} variant`}</button>
+            >
+              {name}
+            </Button>
           ))}
-        </span>
-        <span style={{ paddingBottom: 8 }}>
-          Расчёт варианта
-          <button
-            onClick={() => {
-              const reCalcs = calculateBudget(calcs, [], [], 0);
-              setCalcs(reCalcs);
-            }}
-          >
-            Отсортировать по дате
-          </button>
-        </span>
+        </div>
       </div>
     </div>
   );

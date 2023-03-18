@@ -4,7 +4,7 @@ import { ParsedBudgetEntry, RenderFunc } from "@/types";
 import { calculateBalances } from "@/utils/calculateBalances";
 import { createInputRenderer, createSelectRenderer, createTextAreaRenderer } from "@/utils/createInputRender";
 import { ArrowDownward, ArrowUpward, ContentCopy, Delete } from "@mui/icons-material";
-import { Checkbox } from "@mui/material";
+import { Checkbox, Typography } from "@mui/material";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { de } from "date-fns/locale";

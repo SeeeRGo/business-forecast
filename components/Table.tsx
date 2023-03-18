@@ -3,7 +3,7 @@ import { RenderFunc } from '../types'
 
 interface Props<T> {
   data: T[]
-  headers: string[]
+  headers: React.ReactNode[]
   rowStylingRules?: Array<(row: T) => CSSProperties> 
   renderFuncs?: Array<RenderFunc | undefined>
 }

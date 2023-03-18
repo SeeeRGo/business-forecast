@@ -1,6 +1,7 @@
 import Input from '@/components/Input';
 import { IAccount } from '@/types';
 import { createInputRenderer } from '@/utils/createInputRender';
+import { Grid, Typography } from '@mui/material';
 import React from 'react';
 
 interface Props {
@@ -10,30 +11,28 @@ interface Props {
 export const InitialBalancesSettings = ({ accounts, updateAccounts }: Props) => {
   return (
     <div>
-      Текущее состояние счетов
-      {accounts.map(({ name, balance }, i) => (
-        <React.Fragment key={name}>
-          <div>
-            {name}
-            &nbsp;
-            Баланс
-          </div>
-          <Input
-            value={balance}
-            type='number'
-            onChange={(value) => {
-              let newState = [...accounts];
-          
-              newState[i] = {
-                ...newState[i],
-                balance: parseFloat(value)
-              };
-          
-              updateAccounts(newState);
-            }}
-          />
-        </React.Fragment>
-      ))}
+      <Typography variant="h6">Текущее состояние счетов</Typography>
+      <Grid container rowSpacing={1}>
+        {accounts.map(({ name, balance }, i) => (
+          <Grid xs={6} sm={4} item key={name}>
+            <Typography>{name}</Typography>
+            <Input
+              value={balance}
+              type="number"
+              onChange={(value) => {
+                let newState = [...accounts];
+
+                newState[i] = {
+                  ...newState[i],
+                  balance: parseFloat(value),
+                };
+
+                updateAccounts(newState);
+              }}
+            />
+          </Grid>
+        ))}
+      </Grid>
     </div>
-  )
+  );
 }

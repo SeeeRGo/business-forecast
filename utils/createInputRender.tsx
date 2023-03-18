@@ -11,9 +11,10 @@ export const createInputRenderer = (
     inputProps?: Pick<ComponentProps<typeof Input>, 'min' | 'max' | 'type'>
   ) =>
   function CreatedInput(value: string | number | boolean | Date, rowIndex: number) {
-    return typeof value === 'string' || typeof value === 'number' ? (
+    return typeof value === "string" || typeof value === "number" ? (
       <Input
         value={value}
+        name={`${fieldName}${rowIndex}`}
         onChange={createOnChangeHandler(state, setState, rowIndex, fieldName)}
         {...inputProps}
       />
@@ -24,7 +25,7 @@ export const createTextAreaRenderer = (
     state: any[],
     setState: (newSt: any[]) => void,
     fieldName: string,
-    inputProps?: Pick<ComponentProps<typeof Input>, 'min' | 'max' | 'type'>
+    inputProps?: Pick<ComponentProps<typeof Input>, 'min' | 'max' | 'type'>,
   ) =>
   function CreatedTextArea(value: string | number | boolean | Date, rowIndex: number) {
     return typeof value === "string" ? (
@@ -37,8 +38,16 @@ export const createTextAreaRenderer = (
         }}
         multiline
         maxRows={4}
+        name={`${fieldName}${rowIndex}`}
         value={value}
-        onChange={(ev) => createOnChangeHandler(state, setState, rowIndex, fieldName)(ev.target.value)}
+        onChange={(ev) => {
+          return createOnChangeHandler(
+            state,
+            setState,
+            rowIndex,
+            fieldName
+          )(ev.target.value);
+        }}
         {...inputProps}
       />
     ) : null;
