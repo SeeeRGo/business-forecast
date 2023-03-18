@@ -1,3 +1,4 @@
+import { TextField } from '@mui/material';
 import React, { InputHTMLAttributes, useCallback } from 'react'
 
 interface Props {
@@ -21,7 +22,13 @@ const Input = ({ type, value, onChange, min, max }: Props) => {
     }
   }, [onChange, max, min])
   return (
-    <input
+    <TextField
+      sx={{
+        ".MuiInputBase-input": {
+          padding: 0,
+          maxWidth: 100,
+        },
+      }}
       type={type}
       value={value}
       onChange={(ev) => handleChange(ev.target.value)}

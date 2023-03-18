@@ -1,3 +1,4 @@
+import { MenuItem, Select } from '@mui/material'
 import React from 'react'
 
 interface Props {
@@ -7,14 +8,20 @@ interface Props {
 }
 const AccountSelect = ({value, onChange, options}: Props) => {
   return (
-    <select
+    <Select
       value={value}
+      sx={{
+        '.MuiSelect-select': {
+          padding: 0,
+          minWidth: 200,
+        }
+      }}
       onChange={(ev) => onChange(ev.target.value)}
     >
       {options.map(option => (
-        <option value={option} key={option}>{option}</option>
+        <MenuItem value={option} key={option}>{option}</MenuItem>
       ))}
-    </select>
+    </Select>
   );
 }
 

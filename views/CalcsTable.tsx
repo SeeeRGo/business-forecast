@@ -3,19 +3,9 @@ import Table from "@/components/Table";
 import { BUDGET_ENTRY_KEYS, timeInputFormat } from "@/constants";
 import { IAccount, ParsedBudgetEntry } from "@/types";
 import { calculateBalances } from "@/utils/calculateBalances";
-import {
-  createInputRenderer,
-  createSelectRenderer,
-} from "@/utils/createInputRender";
 import { format, parse, parseISO } from "date-fns";
 import React, { useEffect, useState } from "react";
-import DeleteIcon from "@mui/icons-material/Delete";
-import ContentCopy from "@mui/icons-material/ContentCopy";
-import { ArrowDownward, ArrowUpward } from "@mui/icons-material";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
-import de from "date-fns/locale/de";
-import { v4 as uuidv4 } from "uuid";
+import { calcTableRenderFuncs } from "@/configs/calcsTable";
 
 interface Props {
   calcs: ParsedBudgetEntry[];
@@ -42,11 +32,11 @@ const useKeyPress = (targetKey: string) => {
     };
 
     window.addEventListener("keydown", (ev) => {
-      ev.preventDefault()
-      downHandler(ev)
+      ev.preventDefault();
+      downHandler(ev);
     });
     window.addEventListener("keyup", (ev) => {
-      ev.preventDefault()
+      ev.preventDefault();
       upHandler(ev);
     });
 
@@ -113,12 +103,15 @@ export const CalcsTable = ({
       if (firstSelected > -1 && endWindow < newData.length - 1) {
         newData.reverse();
         const end = newData[endWindow + 1];
-        const updatedData = newData
-          .map((row, i) => i >= firstSelected && i <= endWindow ? ({
-            ...row,
-            isSelected: true,
-            date: end?.date ?? row.date,
-          }) : row);
+        const updatedData = newData.map((row, i) =>
+          i >= firstSelected && i <= endWindow
+            ? {
+                ...row,
+                isSelected: true,
+                date: end?.date ?? row.date,
+              }
+            : row
+        );
         updatedData.splice(endWindow + 1, 1);
         updatedData.splice(firstSelected, 0, end);
         setCalcs(updatedData);
@@ -157,180 +150,16 @@ export const CalcsTable = ({
             (row) => (row[0] ? {} : { opacity: 0.1 }),
             (row) => ({
               backgroundColor:
-                row[5] === selectOptions[1]
+                row[6] === selectOptions[1]
                   ? "#76ff03"
-                  : row[5] === selectOptions[2]
+                  : row[6] === selectOptions[2]
                   ? "#348feb"
-                  : row[5] === selectOptions[3]
+                  : row[6] === selectOptions[3]
                   ? "#fade0a"
                   : "",
             }),
           ]}
-          renderFuncs={[
-            (value, rowIndex) => (
-              <input
-                type={"checkbox"}
-                checked={!!value}
-                onChange={(ev) => {
-                  let newCalcs = [...calcs];
-
-                  newCalcs[rowIndex] = {
-                    ...newCalcs[rowIndex],
-                    isIncluded: ev.target.checked,
-                  };
-
-                  setCalcs(newCalcs);
-                }}
-              />
-            ),
-            (value, rowIndex) => (
-              <input
-                type={"checkbox"}
-                checked={!!value}
-                onChange={(ev) => {
-                  let newCalcs = [...calcs];
-
-                  newCalcs[rowIndex] = {
-                    ...newCalcs[rowIndex],
-                    isSelected: ev.target.checked,
-                  };
-
-                  setCalcs(newCalcs);
-                }}
-              />
-            ),
-            (value, rowIndex) => {
-              return value instanceof Date ? (
-                <LocalizationProvider
-                  dateAdapter={AdapterDateFns}
-                  adapterLocale={de}
-                >
-                  <DatePicker
-                    value={value}
-                    onChange={(val) => {
-                      let newCalcs = [...calcs];
-
-                      newCalcs[rowIndex] = {
-                        ...newCalcs[rowIndex],
-                        date: val ? val : newCalcs[rowIndex].date,
-                      };
-
-                      setCalcs(newCalcs);
-                    }}
-                  />
-                </LocalizationProvider>
-              ) : (
-                <>{value}</>
-              );
-            },
-            createInputRenderer(calcs, setCalcs, BUDGET_ENTRY_KEYS.income, {
-              type: "number",
-              min: 0,
-            }),
-            createInputRenderer(calcs, setCalcs, BUDGET_ENTRY_KEYS.expense, {
-              type: "number",
-              max: 0,
-            }),
-            createInputRenderer(calcs, setCalcs, BUDGET_ENTRY_KEYS.comment),
-            createSelectRenderer(
-              calcs,
-              setCalcs,
-              BUDGET_ENTRY_KEYS.account,
-              selectOptions
-            ),
-
-            ...data[0].balances.map(
-              () =>
-                function CreateBalanceDisplay(
-                  value: string | number | boolean | Date
-                ) {
-                  return (
-                    <>
-                      {typeof value === "number" ? (
-                        <Balance value={value} />
-                      ) : (
-                        value
-                      )}
-                    </>
-                  );
-                }
-            ),
-            (_, rowNumber) => (
-              <>
-                <button
-                  onClick={() => {
-                    const newCalcs = [...calcs];
-                    newCalcs.splice(rowNumber, 1);
-                    setCalcs(newCalcs);
-                  }}
-                >
-                  <DeleteIcon fontSize="inherit" />
-                </button>
-                <button
-                  onClick={() => {
-                    const newCalcs = [...calcs];
-                    const copy = calcs[rowNumber];
-                    newCalcs.splice(rowNumber, 0, { ...copy, id: uuidv4() });
-                    setCalcs(newCalcs);
-                  }}
-                >
-                  <ContentCopy fontSize="inherit" />
-                </button>
-                <button
-                  onClick={() => {
-                    const newCalcs = [...calcs];
-                    const copy = calcs[rowNumber];
-                    const newRow: ParsedBudgetEntry = {
-                      isIncluded: true,
-                      isSelected: false,
-                      date: copy.date,
-                      income: 0,
-                      expense: 0,
-                      comment: "",
-                      account: "",
-                      id: uuidv4(),
-                      balances: calcs[0].balances.map(
-                        ({ balance, ...rest }) => ({
-                          balance: 0,
-                          ...rest,
-                        })
-                      ),
-                    };
-                    newCalcs.splice(rowNumber, 0, newRow);
-                    setCalcs(calculateBalances(newCalcs));
-                  }}
-                >
-                  + Ряд <ArrowUpward fontSize="inherit" />
-                </button>
-                <button
-                  onClick={() => {
-                    const newCalcs = [...calcs];
-                    const copy = calcs[rowNumber];
-                    const newRow: ParsedBudgetEntry = {
-                      isIncluded: true,
-                      isSelected: false,
-                      date: copy.date,
-                      income: 0,
-                      expense: 0,
-                      comment: "",
-                      account: "",
-                      id: uuidv4(),
-                      balances: calcs[0].balances.map(
-                        ({ balance, ...rest }) => ({
-                          balance: 0,
-                          ...rest,
-                        })
-                      ),
-                    };
-                    newCalcs.splice(rowNumber + 1, 0, newRow);
-                    setCalcs(calculateBalances(newCalcs));
-                  }}
-                >
-                  + Ряд <ArrowDownward fontSize="inherit" />
-                </button>
-              </>
-            ),
-          ]}
+          renderFuncs={calcTableRenderFuncs(calcs, setCalcs, selectOptions, data)}
         />
       ) : null}
     </>
