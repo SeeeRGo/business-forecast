@@ -1,11 +1,12 @@
 import { calculateBudget, sortBudgetEntries } from '@/utils/utils';
 import React, { useCallback, useEffect, useState } from 'react'
-import { IAccount, ParsedBudgetEntry, ParsedExpenses, ParsedIncomes } from '@/types';
+import { IAccount, ParsedBudgetEntry, ParsedExpenses, ParsedIncomes, SavedBudgetEntry } from '@/types';
 import { InitialBalancesSettings } from './InitialBalancesSettings';
 import { supabase } from '@/utils/db';
-import { add, differenceInCalendarMonths, format, isValid } from 'date-fns';
+import { differenceInCalendarMonths, format, isValid, parseISO } from 'date-fns';
 import { ru } from "date-fns/locale";
 import { Button, Typography } from '@mui/material';
+import add from 'date-fns/add';
 
 interface Props {
   incomes: ParsedIncomes[]
@@ -139,7 +140,10 @@ export const Settings = ({ incomes, expenses, calcs, setCalcs, calcInitial, setC
                   .eq("name", name);
 
                 if (variants?.length) {
-                  setCalcs(JSON.parse(variants[0].values));
+                  setCalcs(JSON.parse(variants[0].values).map((entry: SavedBudgetEntry) => ({
+                    ...entry,
+                    date: parseISO(entry.date)
+                  })));
                 }
               }}
             >

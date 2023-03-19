@@ -19,16 +19,21 @@ export type ConstantMoneyMove = [
   account: string
 ];
 
-export interface ParsedBudgetEntry {
+export interface BaseBudgetEntry {
   isIncluded: boolean;
   isSelected: boolean;
   id: string;
-  date: Date;
   income: number;
   expense: number;
   comment: string;
   account: string;
   balances: IAccount[];
+}
+export interface ParsedBudgetEntry extends BaseBudgetEntry {
+  date: Date;
+}
+export interface SavedBudgetEntry extends BaseBudgetEntry {
+  date: string;
 }
 
 export interface ParsedIncomes {
