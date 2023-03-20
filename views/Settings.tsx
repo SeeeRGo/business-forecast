@@ -19,20 +19,7 @@ interface Props {
 
 export const Settings = ({ incomes, expenses, calcs, setCalcs, calcInitial, setCalcInitial }: Props) => {
   const [variantName, setVariantName] = useState('');
-  const [experimentLength, setExperimentLength] = useState(0);
-  const [offsetLength, setOffsetLength] = useState(0);
   const [variantList, setVariantList] = useState<string[]>([]);
-  const calc = useCallback(() => {
-    const reCalcs = calculateBudget(
-      calcs,
-      incomes,
-      expenses,
-      experimentLength,
-      offsetLength
-    );
-    setCalcs(reCalcs);
-    setOffsetLength(offsetLength + experimentLength)
-  }, [calcs, incomes, expenses, experimentLength, offsetLength, setCalcs, setOffsetLength])
 
   useEffect( () => {
     supabase.from('calculations').select('name').then(({ data }) => setVariantList(data?.map(({ name }) => name) ?? []))

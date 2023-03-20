@@ -18,7 +18,6 @@ import { ExpenseTable } from "@/views/ExpenseTable";
 import { Settings } from "@/views/Settings";
 import { CalcsTable } from "@/views/CalcsTable";
 import { parseAccounts } from "@/utils/parseAccounts";
-import { IncomeTableNew } from "@/views/IncomeTableNew";
 
 export default function Home() {
   const [calcs, setCalcs] = useState<ParsedBudgetEntry[]>([]);

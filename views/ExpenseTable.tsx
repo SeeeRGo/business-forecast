@@ -34,7 +34,7 @@ export const ExpenseTable = ({ expenses, headers, setExpenses, selectOptions}: P
               expense: -50000,
               id: uuidv4(),
               description: "Новый расход",
-              account: "OOO",
+              account: selectOptions.at(0) ?? '',
             };
             setExpenses([...expenses, newExpense]);
           }}

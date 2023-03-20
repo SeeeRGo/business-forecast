@@ -2,9 +2,10 @@ import { Balance } from "@/components/Balance";
 import { BUDGET_ENTRY_KEYS } from "@/constants";
 import { ParsedBudgetEntry, RenderFunc } from "@/types";
 import { calculateBalances } from "@/utils/calculateBalances";
+import { createBudgetEntry } from "@/utils/createBudgetEntry";
 import { createInputRenderer, createSelectRenderer, createTextAreaRenderer } from "@/utils/createInputRender";
 import { ArrowDownward, ArrowUpward, ContentCopy, Delete } from "@mui/icons-material";
-import { Checkbox, Typography } from "@mui/material";
+import { Checkbox } from "@mui/material";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { de } from "date-fns/locale";
@@ -129,21 +130,8 @@ export const calcTableRenderFuncs = (
       <button
         onClick={() => {
           const newCalcs = [...calcs];
-          const copy = calcs[rowNumber];
-          const newRow: ParsedBudgetEntry = {
-            isIncluded: true,
-            isSelected: false,
-            date: copy.date,
-            income: 0,
-            expense: 0,
-            comment: "",
-            account: "",
-            id: uuidv4(),
-            balances: calcs[0].balances.map(({ balance, ...rest }) => ({
-              balance: 0,
-              ...rest,
-            })),
-          };
+          const source = calcs[rowNumber];
+          const newRow = createBudgetEntry(source);
           newCalcs.splice(rowNumber, 0, newRow);
           setCalcs(calculateBalances(newCalcs));
         }}
@@ -153,21 +141,8 @@ export const calcTableRenderFuncs = (
       <button
         onClick={() => {
           const newCalcs = [...calcs];
-          const copy = calcs[rowNumber];
-          const newRow: ParsedBudgetEntry = {
-            isIncluded: true,
-            isSelected: false,
-            date: copy.date,
-            income: 0,
-            expense: 0,
-            comment: "",
-            account: "",
-            id: uuidv4(),
-            balances: calcs[0].balances.map(({ balance, ...rest }) => ({
-              balance: 0,
-              ...rest,
-            })),
-          };
+          const source = calcs[rowNumber];
+          const newRow = createBudgetEntry(source);
           newCalcs.splice(rowNumber + 1, 0, newRow);
           setCalcs(calculateBalances(newCalcs));
         }}

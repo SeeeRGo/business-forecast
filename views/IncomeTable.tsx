@@ -1,5 +1,5 @@
 import Table from "@/components/Table";
-import { ParsedConstantMoneyMove, ParsedIncomes } from "@/types";
+import { ParsedIncomes } from "@/types";
 import {
   createInputRenderer,
   createSelectRenderer,
@@ -38,7 +38,7 @@ export const IncomeTable = ({ incomes, headers, setIncomes, selectOptions }: Pro
               id: uuidv4(),
               income: 150000,
               description: "Новый доход",
-              account: "OOO",
+              account: selectOptions.at(0) ?? '',
             };
             setIncomes([...incomes, newIncome]);
           }}
