@@ -8,7 +8,7 @@ import { ArrowDownward, ArrowUpward, ContentCopy, Delete } from "@mui/icons-mate
 import { Checkbox } from "@mui/material";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { de } from "date-fns/locale";
+import { ru } from "date-fns/locale";
 import { v4 as uuidv4 } from "uuid";
 
 export const calcTableRenderFuncs = (
@@ -57,9 +57,17 @@ export const calcTableRenderFuncs = (
   ),
   (value, rowIndex) => {
     return value instanceof Date ? (
-      <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={de}>
+      <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ru}>
         <DatePicker
           value={value}
+          slotProps={{
+            textField: {
+              variant: 'standard',
+              InputProps:{
+                disableUnderline: true,
+              }
+            }
+          }}
           sx={{
             ".MuiInputBase-input": {
               padding: 0,

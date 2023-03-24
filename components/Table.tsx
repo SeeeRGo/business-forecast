@@ -18,10 +18,10 @@ interface Props<T> {
 const Table = <T extends any[]>({ headers, data, rowStylingRules = [], renderFuncs = [], calculateIsRowSelected = () => false }: Props<T>) => {
   return data.length ? (
     <TableContainer>
-      <MuiTable>
+      <MuiTable stickyHeader>
         <TableHead>
           <TableRow>
-            {headers.map((value, i) => <TableCell key={i}>{value}</TableCell>)}
+            {headers.map((value, i) => <TableCell key={i} padding='checkbox'>{value}</TableCell>)}
           </TableRow>
         </TableHead>
         <TableBody>
@@ -31,7 +31,8 @@ const Table = <T extends any[]>({ headers, data, rowStylingRules = [], renderFun
                 key={i}
                 hover
                 selected={calculateIsRowSelected(row)}
-                style={{
+                sx={{
+                  borderBottomColor: 'black',
                   ...rowStylingRules.reduce(
                   (acc, rules) => ({
                     ...acc,
@@ -41,7 +42,7 @@ const Table = <T extends any[]>({ headers, data, rowStylingRules = [], renderFun
                 )}}>
                 {row?.map((value, index) => {
                   const renderFunc = renderFuncs[index];
-                  return <TableCell padding='checkbox' key={index}>{renderFunc ? renderFunc(value, i) : value}</TableCell>;
+                  return <TableCell sx={{ borderBottomColor: 'black'}} padding='checkbox' key={index}>{renderFunc ? renderFunc(value, i) : value}</TableCell>;
                 })}
               </TableRow>
             );

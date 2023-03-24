@@ -29,15 +29,12 @@ export const createTextAreaRenderer = (
   function CreatedTextArea(value: string | number | boolean | Date, rowIndex: number) {
     return typeof value === "string" ? (
       <TextField
-        sx={{
-          ".MuiInputBase-root": {
-            padding: 0,
-            minWidth: 300,
-          },
-        }}
         variant='standard'
         multiline
         maxRows={4}
+        InputProps={{
+          disableUnderline: true,
+        }}
         value={value}
         onChange={(ev) => {
           return createOnChangeHandler(

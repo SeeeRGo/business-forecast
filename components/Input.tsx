@@ -23,18 +23,13 @@ const Input = ({ type, value, onChange, min, max }: Props) => {
   }, [onChange, max, min])
   return (
     <TextField
-      sx={{
-        ".MuiInputBase-input": {
-          padding: 0,
-          maxWidth: 100,
-        },
-      }}
       variant='standard'
+      InputProps={{
+        disableUnderline: true,
+      }}
       value={value}
       type={type}
       onChange={ (ev) => {
-          console.log("ev", ev);
-
           return handleChange(ev.target.value);
         }}
     />

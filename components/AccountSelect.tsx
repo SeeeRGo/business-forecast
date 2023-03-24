@@ -10,13 +10,8 @@ const AccountSelect = ({value, onChange, options}: Props) => {
   return (
     <Select
       value={value}
-      sx={{
-        '.MuiSelect-select': {
-          padding: 0,
-          minWidth: 200,
-        }
-      }}
       variant='standard'
+      disableUnderline
       onChange={(ev) => onChange(ev.target.value)}
     >
       {options.map(option => (
