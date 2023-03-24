@@ -16,6 +16,7 @@ const AccountSelect = ({value, onChange, options}: Props) => {
           minWidth: 200,
         }
       }}
+      variant='standard'
       onChange={(ev) => onChange(ev.target.value)}
     >
       {options.map(option => (

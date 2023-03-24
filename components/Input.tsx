@@ -29,6 +29,7 @@ const Input = ({ type, value, onChange, min, max }: Props) => {
           maxWidth: 100,
         },
       }}
+      variant='standard'
       value={value}
       type={type}
       onChange={ (ev) => {

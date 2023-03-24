@@ -35,6 +35,7 @@ export const createTextAreaRenderer = (
             minWidth: 300,
           },
         }}
+        variant='standard'
         multiline
         maxRows={4}
         value={value}

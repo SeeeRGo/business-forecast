@@ -1,6 +1,4 @@
 import Table from "@/components/Table";
-import { IAccount, ParsedBudgetEntry } from "@/types";
-import { calculateBalances } from "@/utils/calculateBalances";
 import React, { useEffect, useState } from "react";
 import { calcTableRenderFuncs } from "@/configs/calcsTable";
 import { IconButton, Typography } from "@mui/material";
@@ -159,17 +157,8 @@ export const CalcsTable = () => {
           )}
           rowStylingRules={[
             (row) => (row[0] ? {} : { opacity: 0.1 }),
-            (row) => ({
-              backgroundColor:
-                row[6] === selectOptions[1]
-                  ? "#76ff03"
-                  : row[6] === selectOptions[2]
-                  ? "#348feb"
-                  : row[6] === selectOptions[3]
-                  ? "#fade0a"
-                  : "",
-            }),
           ]}
+          calculateIsRowSelected={([_, isSelected]: any[]) => isSelected}
           renderFuncs={calcTableRenderFuncs(
             calcs,
             setCalcs,
