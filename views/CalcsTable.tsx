@@ -6,14 +6,9 @@ import { calcTableRenderFuncs } from "@/configs/calcsTable";
 import { IconButton, Typography } from "@mui/material";
 import { Sort } from "@mui/icons-material";
 import { calculateBudget } from "@/utils/utils";
-
-interface Props {
-  calcs: ParsedBudgetEntry[];
-  headers: string[];
-  initialState?: IAccount[];
-  setCalcs: (calcs: ParsedBudgetEntry[]) => void;
-  selectOptions: string[];
-}
+import { useStore } from "effector-react";
+import { $calcHeaders, $calcs, $calcsData, $selectOptions } from "@/stores/calcs";
+import { setCalcs } from "@/events/calcs";
 
 const useKeyPress = (targetKey: string) => {
   const [keyPressed, setKeyPressed] = useState(false);
@@ -51,14 +46,12 @@ const useKeyPress = (targetKey: string) => {
   return keyPressed;
 };
 
-export const CalcsTable = ({
-  calcs,
-  headers,
-  initialState,
-  setCalcs,
-  selectOptions,
-}: Props) => {
-  const data = calculateBalances(calcs, initialState);
+export const CalcsTable = () => {
+  const calcs = useStore($calcs)
+  const calcHeaders = useStore($calcHeaders)
+  const selectOptions = useStore($selectOptions)
+
+  const data = useStore($calcsData);
 
   const arrowUpPressed = useKeyPress("ArrowUp");
   const arrowDownPressed = useKeyPress("ArrowDown");
@@ -147,7 +140,7 @@ export const CalcsTable = ({
               "",
             ]
           )}
-          headers={headers.map((header) =>
+          headers={calcHeaders.map((header) =>
             header === "Дата" ? (
               <span key={header} style={{ paddingBottom: 8 }}>
                 {header}

@@ -1,29 +1,29 @@
 import { calculateBudget, sortBudgetEntries } from '@/utils/utils';
-import React, { useCallback, useEffect, useState } from 'react'
-import { IAccount, ParsedBudgetEntry, ParsedExpenses, ParsedIncomes, SavedBudgetEntry } from '@/types';
+import React, { useEffect, useState } from 'react'
+import { SavedBudgetEntry } from '@/types';
 import { InitialBalancesSettings } from './InitialBalancesSettings';
 import { supabase } from '@/utils/db';
 import { differenceInCalendarMonths, format, isValid, parseISO } from 'date-fns';
 import { ru } from "date-fns/locale";
 import { Button, Typography } from '@mui/material';
 import add from 'date-fns/add';
+import { useStore } from 'effector-react';
+import { $calcs, $expenses, $incomes } from '@/stores/calcs';
+import { setCalcs } from '@/events/calcs';
 
-interface Props {
-  incomes: ParsedIncomes[]
-  expenses: ParsedExpenses[]
-  calcs: ParsedBudgetEntry[]
-  calcInitial: IAccount[]
-  setCalcInitial: (values: IAccount[]) => void
-  setCalcs: (calcs: ParsedBudgetEntry[]) => void
-}
+export const Settings = () => {
+  const calcs = useStore($calcs)
+  const incomes = useStore($incomes)
 
-export const Settings = ({ incomes, expenses, calcs, setCalcs, calcInitial, setCalcInitial }: Props) => {
+  const expenses = useStore($expenses)
+
   const [variantName, setVariantName] = useState('');
   const [variantList, setVariantList] = useState<string[]>([]);
 
   useEffect( () => {
     supabase.from('calculations').select('name').then(({ data }) => setVariantList(data?.map(({ name }) => name) ?? []))
   }, [])
+
   const sortedCalcs = sortBudgetEntries(calcs);
   const earliestDate = sortedCalcs.at(0)?.date;
   const latestDate = sortedCalcs.at(-1)?.date;
@@ -56,10 +56,7 @@ export const Settings = ({ incomes, expenses, calcs, setCalcs, calcInitial, setC
         columnGap: "16px",
       }}
     >
-      <InitialBalancesSettings
-        accounts={calcInitial}
-        updateAccounts={setCalcInitial}
-      />
+      <InitialBalancesSettings />
       <div style={{ display: "flex", flexDirection: "column" }}>
         <Typography variant="h6">
           Расчет с {earliestMonth} по {latestMonth}
@@ -80,19 +77,6 @@ export const Settings = ({ incomes, expenses, calcs, setCalcs, calcInitial, setC
         >
           Добавить {nextMonth}
         </Button>
-        {/* <label htmlFor="experimentLength" style={{ paddingBottom: 8 }}>
-          Добавить{" "}
-          <input
-            type={"number"}
-            name="experimentLength"
-            value={experimentLength}
-            onChange={(ev) => {
-              setExperimentLength(Math.floor(parseFloat(ev.target.value)));
-            }}
-          />{" "}
-          месяцев регулярных доходов и расходов
-          <button onClick={calc}>Рассчитать</button>
-        </label> */}
       </div>
       <div style={{ paddingBottom: 8 }}>
         <Typography variant="h6">Название варианта:</Typography>

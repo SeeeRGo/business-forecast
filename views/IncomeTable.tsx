@@ -1,4 +1,6 @@
 import Table from "@/components/Table";
+import { setIncomes } from "@/events/calcs";
+import { $incomeHeaders, $incomes, $selectOptions } from "@/stores/calcs";
 import { ParsedIncomes } from "@/types";
 import {
   createInputRenderer,
@@ -7,16 +9,15 @@ import {
 } from "@/utils/createInputRender";
 import { Delete } from "@mui/icons-material";
 import { Button, Typography } from "@mui/material";
+import { useStore } from "effector-react";
 import React from "react";
 import { v4 as uuidv4 } from "uuid";
 
-interface Props {
-  incomes: ParsedIncomes[];
-  headers: string[];
-  setIncomes: (incomes: ParsedIncomes[]) => void;
-  selectOptions: string[]
-}
-export const IncomeTable = ({ incomes, headers, setIncomes, selectOptions }: Props) => {
+export const IncomeTable = () => {
+  const selectOptions = useStore($selectOptions)
+
+  const incomes = useStore($incomes)
+  const incomeHeaders = useStore($incomeHeaders)
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
       <div
@@ -58,7 +59,7 @@ export const IncomeTable = ({ incomes, headers, setIncomes, selectOptions }: Pro
                 "",
               ]
             )}
-            headers={headers}
+            headers={incomeHeaders}
             renderFuncs={[
               createInputRenderer(incomes, setIncomes, "dayOfMonth", {
                 type: "number",

@@ -1,14 +1,13 @@
 import Input from '@/components/Input';
-import { IAccount } from '@/types';
-import { createInputRenderer } from '@/utils/createInputRender';
+import { setInitialBalance } from '@/events/calcs';
+import { $initialBalances } from '@/stores/calcs';
 import { Grid, Typography } from '@mui/material';
+import { useStore } from 'effector-react';
 import React from 'react';
 
-interface Props {
-  accounts: IAccount[]
-  updateAccounts: (account: IAccount[]) => void
-}
-export const InitialBalancesSettings = ({ accounts, updateAccounts }: Props) => {
+export const InitialBalancesSettings = () => {
+  const accounts = useStore($initialBalances)
+
   return (
     <div>
       <Typography variant="h6">Текущее состояние счетов</Typography>
@@ -27,7 +26,7 @@ export const InitialBalancesSettings = ({ accounts, updateAccounts }: Props) => 
                   balance: parseFloat(value),
                 };
 
-                updateAccounts(newState);
+                setInitialBalance(newState);
               }}
             />
           </Grid>

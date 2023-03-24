@@ -1,18 +1,20 @@
 import Table from '@/components/Table';
-import { ParsedConstantMoneyMove, ParsedExpenses } from '@/types';
+import { setExpenses } from '@/events/calcs';
+import { $expenses, $expensesHeaders, $selectOptions } from '@/stores/calcs';
+import { ParsedExpenses } from '@/types';
 import { createInputRenderer, createSelectRenderer, createTextAreaRenderer } from '@/utils/createInputRender';
 import { Delete } from '@mui/icons-material';
 import { Button, Typography } from '@mui/material';
+import { useStore } from 'effector-react';
 import React from 'react'
 import { v4 as uuidv4 } from "uuid";
 
-interface Props {
-  expenses: ParsedExpenses[];
-  headers: string[];
-  setExpenses: (expenses: ParsedExpenses[]) => void;
-  selectOptions: string[]
-}
-export const ExpenseTable = ({ expenses, headers, setExpenses, selectOptions}: Props) => {
+export const ExpenseTable = () => {
+  const selectOptions = useStore($selectOptions)
+
+  const expenses = useStore($expenses)
+  const expenseHeaders = useStore($expensesHeaders)
+
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
       <div
@@ -54,7 +56,7 @@ export const ExpenseTable = ({ expenses, headers, setExpenses, selectOptions}: P
                 "",
               ]
             )}
-            headers={headers}
+            headers={expenseHeaders}
             renderFuncs={[
               createInputRenderer(expenses, setExpenses, "dayOfMonth", {
                 type: "number",
