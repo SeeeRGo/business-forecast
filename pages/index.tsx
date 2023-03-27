@@ -6,11 +6,40 @@ import { ExpenseTable } from "@/views/ExpenseTable";
 import { Settings } from "@/views/Settings";
 import { CalcsTable } from "@/views/CalcsTable";
 import { fetchDataFx } from "@/effects/getDataFx";
+import { autosaveFx } from "@/effects/autosaveFx";
+import { createStore, createEvent, createEffect, sample } from "effector";
+import { setCalcs } from "@/events/calcs";
+import { autosaveTimer } from "@/events/autosave";
+import { $calcs } from "@/stores/calcs";
+
+// const submitForm = createEvent();
+// const signInFx = createEffect((params) => {
+//   console.log(params);
+// });
+
+// const $userName = createStore("john");
+
+// sample({
+//   clock: submitForm /* 1 */,
+//   source: $userName /* 2 */,
+//   fn: (data) => data /* 3 */,
+//   target: autosaveFx /* 4 */,
+// });
+
+sample({
+  clock: autosaveTimer,
+  source: $calcs,
+  fn: (data) => data,
+  target: autosaveFx,
+});
 
 export default function Home() {
   useEffect(() => {
     fetchDataFx()
   }, []);
+  // useEffect(() => {
+  //   submitForm(12345678);
+  // }, [])
 
   return (
     <>
