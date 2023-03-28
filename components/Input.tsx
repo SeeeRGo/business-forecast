@@ -4,11 +4,12 @@ import React, { InputHTMLAttributes, useCallback } from 'react'
 interface Props {
   type?: InputHTMLAttributes<HTMLInputElement>["type"];
   value: InputHTMLAttributes<HTMLInputElement>['value'];
+  label?: string;
   min?: number;
   max?: number;
   onChange?: (value: string) => void;
 }
-const Input = ({ type, value, onChange, min, max }: Props) => {
+const Input = ({ type, value, onChange, min, max, label }: Props) => {
 
   const handleChange = useCallback((value: string) => {
     
@@ -24,8 +25,16 @@ const Input = ({ type, value, onChange, min, max }: Props) => {
   return (
     <TextField
       variant='standard'
+      label={label}
       InputProps={{
         disableUnderline: true,
+      }}
+      sx={{
+        ".MuiInputBase-input": {
+          padding: 0,
+          width: 100,
+          minWidth: 100,
+        },
       }}
       value={value}
       type={type}

@@ -35,6 +35,13 @@ export const createTextAreaRenderer = (
         InputProps={{
           disableUnderline: true,
         }}
+        sx={{
+          ".MuiInputBase-input": {
+            padding: 0,
+            width: 250,
+            maxWidth: 250,
+          },
+        }}
         value={value}
         onChange={(ev) => {
           return createOnChangeHandler(

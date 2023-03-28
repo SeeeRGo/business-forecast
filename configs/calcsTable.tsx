@@ -60,18 +60,11 @@ export const calcTableRenderFuncs = (
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ru}>
         <DatePicker
           value={value}
-          slotProps={{
-            textField: {
-              variant: 'standard',
-              InputProps:{
-                disableUnderline: true,
-              }
-            }
-          }}
           sx={{
             ".MuiInputBase-input": {
               padding: 0,
-              maxWidth: 100,
+              width: 150,
+              maxWidth: 200,
             },
           }}
           onChange={(val) => {

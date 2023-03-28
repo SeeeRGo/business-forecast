@@ -69,3 +69,11 @@ export interface IVariant {
   name: string;
   entries: ParsedBudgetEntry[];
 }
+
+export interface RegularMoneMove {
+  dayOfMonth: number
+  amount: number
+  account: string
+  comment: string
+  regularity: 'monthly'
+}
