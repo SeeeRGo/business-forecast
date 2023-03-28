@@ -5,12 +5,13 @@ import { InitialBalancesSettings } from './InitialBalancesSettings';
 import { supabase } from '@/utils/db';
 import { differenceInCalendarMonths, format, isValid, parseISO } from 'date-fns';
 import { ru } from "date-fns/locale";
-import { Button, Typography } from '@mui/material';
+import { Button, IconButton, Typography } from '@mui/material';
 import add from 'date-fns/add';
 import { useStore } from 'effector-react';
 import { $calcs, $expenses, $incomes } from '@/stores/calcs';
 import { setCalcs } from '@/events/calcs';
 import { AddSingleRegularMoneyMove } from './AddSingleRegularMoneyMove';
+import { Delete, SaveAs } from '@mui/icons-material';
 
 export const Settings = () => {
   const calcs = useStore($calcs)
@@ -22,7 +23,7 @@ export const Settings = () => {
   const [variantList, setVariantList] = useState<string[]>([]);
 
   useEffect( () => {
-    supabase.from('calculations').select('name').then(({ data }) => setVariantList(data?.map(({ name }) => name) ?? []))
+    supabase.from('calculations').select('name').order('id', { ascending: false }).then(({ data }) => setVariantList(data?.map(({ name }) => name) ?? []))
   }, [])
 
   const sortedCalcs = sortBudgetEntries(calcs);
@@ -102,24 +103,38 @@ export const Settings = () => {
           <Typography variant="h6">Загрузить вариант</Typography>
           <div>
             {variantList.map((name, i) => (
-              <Button
-                key={i}
-                onClick={async () => {
-                  const { data: variants } = await supabase
-                    .from("calculations")
-                    .select()
-                    .eq("name", name);
-
-                  if (variants?.length) {
-                    setCalcs(JSON.parse(variants[0].values).map((entry: SavedBudgetEntry) => ({
-                      ...entry,
-                      date: parseISO(entry.date)
-                    })));
-                  }
-                }}
-              >
-                {name}
-              </Button>
+              <span key={i}>
+                <Button
+                  onClick={async () => {
+                    const { data: variants } = await supabase
+                      .from("calculations")
+                      .select()
+                      .eq("name", name);
+  
+                    if (variants?.length) {
+                      setCalcs(JSON.parse(variants[0].values).map((entry: SavedBudgetEntry) => ({
+                        ...entry,
+                        date: parseISO(entry.date)
+                      })));
+                    }
+                  }}
+                >
+                  {name}
+                </Button>
+                <IconButton onClick={async () => {
+              const { error } = await supabase
+                .from("calculations")
+                .update({ values: JSON.stringify(calcs) })
+                .eq('name', name);
+            }}><SaveAs /></IconButton>
+                <IconButton onClick={async () => {
+              const { error } = await supabase
+                .from("calculations")
+                .delete()
+                .eq('name', name)
+              setVariantList(variantList.filter(val => val === name))
+            }}><Delete /></IconButton>
+              </span>
             ))}
           </div>
         </div>
