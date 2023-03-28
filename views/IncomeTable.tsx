@@ -1,6 +1,6 @@
 import Table from "@/components/Table";
 import { setIncomes } from "@/events/calcs";
-import { $incomeHeaders, $incomes, $selectOptions } from "@/stores/calcs";
+import { $incomeHeaders, $incomes, $moneyMoveCategories, $selectOptions } from "@/stores/calcs";
 import { ParsedIncomes } from "@/types";
 import {
   createInputRenderer,
@@ -18,6 +18,8 @@ export const IncomeTable = () => {
 
   const incomes = useStore($incomes)
   const incomeHeaders = useStore($incomeHeaders)
+  const categories = useStore($moneyMoveCategories)
+
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
       <div
@@ -38,6 +40,7 @@ export const IncomeTable = () => {
               dayOfMonth: 15,
               id: uuidv4(),
               income: 150000,
+              moneyMoveCategory: categories.at(0) ?? '',
               description: "Новый доход",
               account: selectOptions.at(0) ?? '',
             };
@@ -51,11 +54,12 @@ export const IncomeTable = () => {
         <div style={{ paddingBottom: 16 }}>
           <Table
             data={incomes.map(
-              ({ dayOfMonth, income, description, account }) => [
+              ({ dayOfMonth, income, description, account, moneyMoveCategory }) => [
                 dayOfMonth,
                 income,
                 description,
                 account,
+                moneyMoveCategory,
                 "",
               ]
             )}
@@ -73,6 +77,12 @@ export const IncomeTable = () => {
                 setIncomes,
                 "account",
                 selectOptions
+              ),
+              createSelectRenderer(
+                incomes,
+                setIncomes,
+                'moneyMoveCategory',
+                categories,
               ),
               (_, rowNumber) => (
                 <>

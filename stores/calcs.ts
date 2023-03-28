@@ -35,3 +35,5 @@ export const $calcsData = combine(
   $calcs, $initialBalances,
   (calcs, initialBalances) => calculateBalances(calcs, initialBalances)
 )
+export const $moneyMoveCategories = createStore<string[]>([])
+  .on(fetchDataFx.doneData, (_, { moneyMoveCategory }) => moneyMoveCategory)

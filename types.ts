@@ -25,6 +25,7 @@ export interface BaseBudgetEntry {
   id: string;
   income: number;
   expense: number;
+  moneyMoveCategory: string;
   comment: string;
   account: string;
   balances: IAccount[];
@@ -40,6 +41,7 @@ export interface ParsedIncomes {
   dayOfMonth: number;
   id: string;
   income: number;
+  moneyMoveCategory: string
   description: string;
   account: string;
 }
@@ -48,6 +50,7 @@ export interface ParsedExpenses {
   id: string;
   dayOfMonth: number;
   expense: number;
+  moneyMoveCategory: string
   description: string;
   account: string;
 }
@@ -73,6 +76,7 @@ export interface IVariant {
 export interface RegularMoneMove {
   dayOfMonth: number
   amount: number
+  moneyMoveCategory: string
   account: string
   comment: string
   regularity: 'monthly'

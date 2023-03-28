@@ -8,6 +8,7 @@ export const createBudgetEntry = (source: ParsedBudgetEntry): ParsedBudgetEntry 
   income: 0,
   expense: 0,
   comment: "",
+  moneyMoveCategory: source.moneyMoveCategory,
   account: source.balances.at(0)?.name ?? '',
   id: uuidv4(),
   balances: source.balances.map(({ balance, ...rest }) => ({

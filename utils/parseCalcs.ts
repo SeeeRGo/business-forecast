@@ -11,6 +11,7 @@ export const parseCalcs = (calcs: BudgetEntry[], headers: string[]): ParsedBudge
         expense,
         comment,
         account,
+        moneyMoveCategory,
         ...rest
       ]: BudgetEntry,
       i
@@ -24,6 +25,7 @@ export const parseCalcs = (calcs: BudgetEntry[], headers: string[]): ParsedBudge
         expense: parseFloat(expense || '0'),
         comment,
         account,
+        moneyMoveCategory,
         balances: rest.map((_, i) => ({
           balance: 0,
           name: headers.at(i) || ''

@@ -15,7 +15,8 @@ export const calcTableRenderFuncs = (
   calcs: ParsedBudgetEntry[],
   setCalcs: (entries: ParsedBudgetEntry[]) => void,
   selectOptions: string[],
-  data: ParsedBudgetEntry[]
+  data: ParsedBudgetEntry[],
+  categoryOptions: string[],
 ): Array<RenderFunc | undefined> => [
   (value, rowIndex) => (
     <Checkbox
@@ -98,7 +99,12 @@ export const calcTableRenderFuncs = (
     BUDGET_ENTRY_KEYS.account,
     selectOptions
   ),
-
+  createSelectRenderer(
+    calcs,
+    setCalcs,
+    BUDGET_ENTRY_KEYS.moneyMoveCategory,
+    categoryOptions
+  ),
   ...data[0].balances.map(
     () =>
       function CreateBalanceDisplay(value: string | number | boolean | Date) {

@@ -8,10 +8,7 @@ export const BUDGET_ENTRY_KEYS = {
   expense: "expense",
   comment: "comment",
   account: "account",
-  balanceIP: "balanceIP",
-  balanceOOO: "balanceOOO",
-  balanceThird: "balanceThird",
-  balanceFourth: "balanceFourth",
+  moneyMoveCategory: 'moneyMoveCategory',
 };
 
 export const baseUrl =

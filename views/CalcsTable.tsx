@@ -5,7 +5,7 @@ import { IconButton, Typography } from "@mui/material";
 import { Sort } from "@mui/icons-material";
 import { calculateBudget } from "@/utils/utils";
 import { useStore } from "effector-react";
-import { $calcHeaders, $calcs, $calcsData, $selectOptions } from "@/stores/calcs";
+import { $calcHeaders, $calcs, $calcsData, $moneyMoveCategories, $selectOptions } from "@/stores/calcs";
 import { setCalcs } from "@/events/calcs";
 
 const useKeyPress = (targetKey: string) => {
@@ -53,6 +53,7 @@ export const CalcsTable = () => {
 
   const arrowUpPressed = useKeyPress("ArrowUp");
   const arrowDownPressed = useKeyPress("ArrowDown");
+  const categories = useStore($moneyMoveCategories)
 
   useEffect(() => {
     if (arrowUpPressed) {
@@ -126,6 +127,7 @@ export const CalcsTable = () => {
               comment,
               account,
               balances,
+              moneyMoveCategory,
             }) => [
               isIncluded,
               isSelected,
@@ -134,6 +136,7 @@ export const CalcsTable = () => {
               expense,
               comment,
               account,
+              moneyMoveCategory,
               ...balances.map(({ balance }) => balance),
               "",
             ]
@@ -163,7 +166,8 @@ export const CalcsTable = () => {
             calcs,
             setCalcs,
             selectOptions,
-            data
+            data,
+            categories,
           )}
         />
       ) : null}

@@ -11,15 +11,15 @@ export const fetchDataFx = createEffect(async () => {
   const res = await axios.get(baseUrl);
   const parsedCalcs = parseCalcs(
     res.data.calcs,
-    res.data.calcHeaders.slice(5)
+    res.data.calcHeaders.slice(6)
   );
   const parsedIncomes = parseIncomes(res.data.income);
   const parsedExpenses = parseExpenses(res.data.expense);
   const { calcInitial, calcHeaders, incomeHeaders, expenceHeaders } =
     res.data;
   const parsedInitial = parseAccounts(
-    calcHeaders.slice(5),
-    calcInitial.slice(5)
+    calcHeaders.slice(6),
+    calcInitial.slice(6)
   );
   const calculatedCalcs = calculateBudget(
     parsedCalcs,
@@ -31,6 +31,7 @@ export const fetchDataFx = createEffect(async () => {
     calcs: calculatedCalcs,
     expenses: parsedExpenses,
     incomes: parsedIncomes,
+    moneyMoveCategory: Array.from(new  Set(parsedCalcs.map(({ moneyMoveCategory }) => moneyMoveCategory))),
     initialBalances: parsedInitial,
     calcHeaders: ["Учет", "Выбор", ...calcHeaders, "Действия"],
     incomeHeaders: [...incomeHeaders, "Действия"],

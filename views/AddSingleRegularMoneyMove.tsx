@@ -10,7 +10,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { isValid, parse } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { useStore } from 'effector-react';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 export const AddSingleRegularMoneyMove = () => {
   const [amount, setAmount] = useState('0')
@@ -21,6 +21,12 @@ export const AddSingleRegularMoneyMove = () => {
   const [start, setStart] = useState<string | Date | null>(null)
   const [end, setEnd] = useState<string | Date | null>(null)
   const calcs = useStore($calcs)
+
+  useEffect(() => {
+    if(selecOptions[0]) {
+      setAccount(selecOptions[0])
+    }
+  }, [selecOptions])
 
   const sortedCalcs = sortBudgetEntries(calcs);
   const earliestDate = sortedCalcs.at(0)?.date;
@@ -97,7 +103,7 @@ export const AddSingleRegularMoneyMove = () => {
         setCalcs(sortBudgetEntries([...calcs, ...result]))
       }}
     >
-      Добавить Регулярное движение денег
+      Добавить регулярное движение средств
     </Button>
     </div>
   )

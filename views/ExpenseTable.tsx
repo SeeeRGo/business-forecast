@@ -1,6 +1,6 @@
 import Table from '@/components/Table';
 import { setExpenses } from '@/events/calcs';
-import { $expenses, $expensesHeaders, $selectOptions } from '@/stores/calcs';
+import { $expenses, $expensesHeaders, $moneyMoveCategories, $selectOptions } from '@/stores/calcs';
 import { ParsedExpenses } from '@/types';
 import { createInputRenderer, createSelectRenderer, createTextAreaRenderer } from '@/utils/createInputRender';
 import { Delete } from '@mui/icons-material';
@@ -14,6 +14,7 @@ export const ExpenseTable = () => {
 
   const expenses = useStore($expenses)
   const expenseHeaders = useStore($expensesHeaders)
+  const categories = useStore($moneyMoveCategories)
 
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
@@ -35,6 +36,7 @@ export const ExpenseTable = () => {
               dayOfMonth: 15,
               expense: -50000,
               id: uuidv4(),
+              moneyMoveCategory: categories.at(0) ?? '',
               description: "Новый расход",
               account: selectOptions.at(0) ?? '',
             };
@@ -48,11 +50,12 @@ export const ExpenseTable = () => {
         <div style={{ paddingBottom: 16 }}>
           <Table
             data={expenses.map(
-              ({ dayOfMonth, expense, description, account }) => [
+              ({ dayOfMonth, expense, description, account, moneyMoveCategory }) => [
                 dayOfMonth,
                 expense,
                 description,
                 account,
+                moneyMoveCategory,
                 "",
               ]
             )}
@@ -73,6 +76,12 @@ export const ExpenseTable = () => {
                 setExpenses,
                 "account",
                 selectOptions
+              ),
+              createSelectRenderer(
+                expenses,
+                setExpenses,
+                'moneyMoveCategory',
+                categories
               ),
               (_, rowNumber) => (
                 <>
