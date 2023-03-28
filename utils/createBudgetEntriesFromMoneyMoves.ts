@@ -21,6 +21,7 @@ export const createBudgetEntriesFromMoneyMoves = (move: RegularMoneMove, account
         expense: move.amount < 0 ? move.amount : 0,
         comment: move.comment,
         account: move.account,
+        moneyMoveCategory: move.moneyMoveCategory,
         balances: accountOptions.map(account => ({
           name: account,
           balance: 0,

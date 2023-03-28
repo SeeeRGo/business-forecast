@@ -1,7 +1,7 @@
 import AccountSelect from '@/components/AccountSelect';
 import Input from '@/components/Input';
 import { setCalcs } from '@/events/calcs';
-import { $calcs, $selectOptions } from '@/stores/calcs';
+import { $calcs, $moneyMoveCategories, $selectOptions } from '@/stores/calcs';
 import { createBudgetEntriesFromMoneyMoves } from '@/utils/createBudgetEntriesFromMoneyMoves';
 import { sortBudgetEntries } from '@/utils/utils';
 import { Button, TextField, Typography } from '@mui/material';
@@ -15,18 +15,25 @@ import React, { useEffect, useState } from 'react'
 export const AddSingleRegularMoneyMove = () => {
   const [amount, setAmount] = useState('0')
   const [dayOfMonth, setDayOfMonth] = useState('1')
-  const selecOptions = useStore($selectOptions)
-  const [account, setAccount] = useState(selecOptions[0])
+  const selectOptions = useStore($selectOptions)
+  const [account, setAccount] = useState(selectOptions[0])
   const [comment, setComment] = useState('')
   const [start, setStart] = useState<string | Date | null>(null)
   const [end, setEnd] = useState<string | Date | null>(null)
   const calcs = useStore($calcs)
+  const categoryOptions = useStore($moneyMoveCategories)
+  const [category, setCategory] = useState(categoryOptions[0]);
 
   useEffect(() => {
-    if(selecOptions[0]) {
-      setAccount(selecOptions[0])
+    if(selectOptions[0]) {
+      setAccount(selectOptions[0])
     }
-  }, [selecOptions])
+  }, [selectOptions])
+  useEffect(() => {
+    if (categoryOptions[0]) {
+      setAccount(categoryOptions[0]);
+    }
+  }, [categoryOptions]);
 
   const sortedCalcs = sortBudgetEntries(calcs);
   const earliestDate = sortedCalcs.at(0)?.date;
@@ -39,7 +46,7 @@ export const AddSingleRegularMoneyMove = () => {
       value={account}
       label={'Счет'}
       onChange={setAccount}
-      options={selecOptions}
+      options={selectOptions}
     />
     <Input value={comment} onChange={setComment} />
     <TextField
@@ -97,8 +104,9 @@ export const AddSingleRegularMoneyMove = () => {
           dayOfMonth: parseFloat(dayOfMonth),
           account,
           comment,
+          moneyMoveCategory: category,
           regularity: 'monthly'
-        }, selecOptions, startDate, endDate)
+        }, selectOptions, startDate, endDate)
 
         setCalcs(sortBudgetEntries([...calcs, ...result]))
       }}
