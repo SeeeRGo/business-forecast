@@ -2,7 +2,7 @@ import Table from "@/components/Table";
 import React, { useEffect, useState } from "react";
 import { calcTableRenderFuncs } from "@/configs/calcsTable";
 import { IconButton, Typography } from "@mui/material";
-import { Sort } from "@mui/icons-material";
+import { DeleteSweep, Deselect, Sort } from "@mui/icons-material";
 import { calculateBudget } from "@/utils/utils";
 import { useStore } from "effector-react";
 import { $calcHeaders, $calcs, $calcsData, $moneyMoveCategories, $selectOptions } from "@/stores/calcs";
@@ -142,16 +142,24 @@ export const CalcsTable = () => {
             ]
           )}
           headers={calcHeaders.map((header) =>
-            header === "Дата" ? (
+            header === "Выбор" ? (
               <span key={header} style={{ paddingBottom: 8 }}>
                 {header}
                 <IconButton
                   onClick={() => {
-                    const reCalcs = calculateBudget(calcs, [], [], 0);
+                    const reCalcs = calculateBudget(calcs.filter(({ isSelected }) => !isSelected), [], [], 0);
                     setCalcs(reCalcs);
                   }}
                 >
-                  <Sort />
+                  <DeleteSweep />
+                </IconButton>
+                <IconButton
+                  onClick={() => {
+                    const reCalcs = calcs.map(({ isSelected, ...rest }) => ({ ...rest, isSelected: false}));
+                    setCalcs(reCalcs);
+                  }}
+                >
+                  <Deselect />
                 </IconButton>
               </span>
             ) : (

@@ -1,6 +1,6 @@
 import { $calcs, $monthsCalculated } from '@/stores/calcs'
 import { Typography } from '@mui/material'
-import { endOfMonth, format, isAfter, isSameMonth, parseISO, startOfMonth } from 'date-fns'
+import { format, isSameMonth, parseISO } from 'date-fns'
 import { ru } from 'date-fns/locale'
 import { useStore } from 'effector-react'
 import React, { useEffect, useMemo, useState } from 'react'

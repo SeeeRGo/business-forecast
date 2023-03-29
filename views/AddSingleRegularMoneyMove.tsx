@@ -7,7 +7,7 @@ import { sortBudgetEntries } from '@/utils/utils';
 import { Button, TextField, Typography } from '@mui/material';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { isValid, parse } from 'date-fns';
+import { isValid } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { useStore } from 'effector-react';
 import React, { useEffect, useState } from 'react'
@@ -16,24 +16,24 @@ export const AddSingleRegularMoneyMove = () => {
   const [amount, setAmount] = useState('0')
   const [dayOfMonth, setDayOfMonth] = useState('1')
   const selectOptions = useStore($selectOptions)
-  const [account, setAccount] = useState(selectOptions[0])
+  const [account, setAccount] = useState(selectOptions[0] ?? '')
   const [comment, setComment] = useState('')
   const [start, setStart] = useState<string | Date | null>(null)
   const [end, setEnd] = useState<string | Date | null>(null)
   const calcs = useStore($calcs)
   const categoryOptions = useStore($moneyMoveCategories)
-  const [category, setCategory] = useState(categoryOptions[0]);
+  const [category, setCategory] = useState(categoryOptions[0] ?? '');  
 
   useEffect(() => {
-    if(selectOptions[0]) {
+    if(selectOptions.length) {      
       setAccount(selectOptions[0])
     }
-  }, [selectOptions])
+  }, [selectOptions.length])
   useEffect(() => {
-    if (categoryOptions[0]) {
+    if (categoryOptions.length) {
       setAccount(categoryOptions[0]);
     }
-  }, [categoryOptions]);
+  }, [categoryOptions.length]);
 
   const sortedCalcs = sortBudgetEntries(calcs);
   const earliestDate = sortedCalcs.at(0)?.date;
@@ -48,11 +48,18 @@ export const AddSingleRegularMoneyMove = () => {
       onChange={setAccount}
       options={selectOptions}
     />
-    <Input value={comment} onChange={setComment} />
+    <AccountSelect
+      value={category}
+      label={'Статья бюджета'}
+      onChange={setCategory}
+      options={categoryOptions}
+    />
     <TextField
         variant='standard'
         multiline
         maxRows={4}
+        value={comment}
+        onChange={(ev) => {setComment(ev.target.value)}}
         label={'Комментарий'}
         InputProps={{
           disableUnderline: true,

@@ -39,7 +39,7 @@ const Input = ({ type, value, onChange, min, max, label }: Props) => {
       value={value}
       type={type}
       onChange={ (ev) => {
-          return handleChange(ev.target.value);
+          handleChange(ev.target.value);
         }}
     />
   );
