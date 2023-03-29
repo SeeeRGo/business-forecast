@@ -32,7 +32,7 @@ export const $initialBalances = createStore<IAccount[]>([])
   .on(fetchDataFx.doneData, (_, { initialBalances }) => initialBalances)
   .on(setInitialBalance, (_, initialBalances) => initialBalances)
 
-export const $selectOptions = $calcHeaders.map(headers => headers.slice(7, -1))
+export const $selectOptions = $calcHeaders.map(headers => headers.slice(8, -1))
 
 export const $monthsCalculated = $calcs.map(calcs => {
     const sortedCalcs = sortBudgetEntries(calcs);
@@ -40,15 +40,12 @@ export const $monthsCalculated = $calcs.map(calcs => {
     const latestDate = sortedCalcs.at(-1)?.date;
     let date = earliestDate
     const result: string[] = []
-    console.log("earliestDate", earliestDate);
-    console.log("latestDate", latestDate);
-    
     if (earliestDate && latestDate && date) {
       const months = differenceInCalendarMonths(latestDate, earliestDate)
-      
-      for (let i = 0; i <= months; i++) {
-        date = add(date, {months: i })
-        const formattedDate = format(date, "LLLL yyyy", { locale: ru });
+      result.push(date.toISOString());
+      for (let i = 0; i < months; i++) {
+        date = add(date, {months: 1 })
+        const formattedDate = date.toISOString();
         result.push(formattedDate);
       }
     }
