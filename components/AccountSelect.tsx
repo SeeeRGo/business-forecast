@@ -23,7 +23,7 @@ const AccountSelect = ({value, onChange, options, label}: Props) => {
       }}
       onChange={(ev) => onChange(ev.target.value)}
     >
-      {options.map(option => (
+      {options?.map(option => (
         <MenuItem value={option} key={option}>{option}</MenuItem>
       ))}
     </Select>

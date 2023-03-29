@@ -15,8 +15,14 @@ export const fetchDataFx = createEffect(async () => {
   );
   const parsedIncomes = parseIncomes(res.data.income);
   const parsedExpenses = parseExpenses(res.data.expense);
-  const { calcInitial, calcHeaders, incomeHeaders, expenceHeaders } =
-    res.data;
+  const {
+    calcInitial,
+    calcHeaders,
+    incomeHeaders,
+    expenceHeaders,
+    categoryHeaders,
+    categoryData,
+  } = res.data;
   const parsedInitial = parseAccounts(
     calcHeaders.slice(6),
     calcInitial.slice(6)
@@ -35,6 +41,8 @@ export const fetchDataFx = createEffect(async () => {
     initialBalances: parsedInitial,
     calcHeaders: ["Учет", "Выбор", ...calcHeaders, "Действия"],
     incomeHeaders: [...incomeHeaders, "Действия"],
-    expenceHeaders: [...expenceHeaders, "Действия"]
+    expenceHeaders: [...expenceHeaders, "Действия"],
+    categoryData,
+    categoryHeaders,
   }
 })

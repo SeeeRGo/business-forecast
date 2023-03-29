@@ -12,6 +12,7 @@ import { $calcs, $expenses, $incomes } from '@/stores/calcs';
 import { setCalcs } from '@/events/calcs';
 import { AddSingleRegularMoneyMove } from './AddSingleRegularMoneyMove';
 import { Delete, SaveAs } from '@mui/icons-material';
+import { CategoryTargetsReport } from './CategoryTargetsReport';
 
 export const Settings = () => {
   const calcs = useStore($calcs)
@@ -60,6 +61,7 @@ export const Settings = () => {
         }}
       >
         <InitialBalancesSettings />
+        <div>
           <Typography variant="h6">
             Расчет с {earliestMonth} по {latestMonth}
           </Typography>
@@ -79,6 +81,7 @@ export const Settings = () => {
           >
             Добавить {nextMonth}
           </Button>
+        </div>
         <div style={{ paddingBottom: 8 }}>
           <Typography variant="h6">Название варианта:</Typography>
           <input
@@ -140,6 +143,7 @@ export const Settings = () => {
         </div>
       </div>
       <AddSingleRegularMoneyMove />
+      <CategoryTargetsReport />
     </div>
   );
 }
