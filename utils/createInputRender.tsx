@@ -38,8 +38,8 @@ export const createTextAreaRenderer = (
         sx={{
           ".MuiInputBase-input": {
             padding: 0,
-            width: 250,
-            maxWidth: 250,
+            width: 170,
+            maxWidth: 170,
           },
         }}
         value={value}

@@ -1,5 +1,6 @@
 import { Balance } from "@/components/Balance";
 import { BUDGET_ENTRY_KEYS } from "@/constants";
+import { setCalcs } from "@/events/calcs";
 import { ParsedBudgetEntry, RenderFunc } from "@/types";
 import { calculateBalances } from "@/utils/calculateBalances";
 import { createBudgetEntry } from "@/utils/createBudgetEntry";
@@ -13,9 +14,7 @@ import { v4 as uuidv4 } from "uuid";
 
 export const calcTableRenderFuncs = (
   calcs: ParsedBudgetEntry[],
-  setCalcs: (entries: ParsedBudgetEntry[]) => void,
   selectOptions: string[],
-  data: ParsedBudgetEntry[],
   categoryOptions: string[],
 ): Array<RenderFunc | undefined> => [
   (value, rowIndex) => (
@@ -38,23 +37,25 @@ export const calcTableRenderFuncs = (
     />
   ),
   (value, rowIndex) => (
-    <Checkbox
-      disableRipple
-      sx={{
-        padding: 0,
-      }}
-      checked={!!value}
-      onChange={(ev) => {
-        let newCalcs = [...calcs];
-
-        newCalcs[rowIndex] = {
-          ...newCalcs[rowIndex],
-          isSelected: ev.target.checked,
-        };
-
-        setCalcs(newCalcs);
-      }}
-    />
+    <div>      
+      <Checkbox
+        disableRipple
+        sx={{
+          padding: 0,
+        }}
+        checked={!!value}
+        onChange={(ev) => {
+          let newCalcs = [...calcs];
+  
+          newCalcs[rowIndex] = {
+            ...newCalcs[rowIndex],
+            isSelected: ev.target.checked,
+          };
+  
+          setCalcs(newCalcs);
+        }}
+      />
+    </div>
   ),
   (value, rowIndex) => {
     return value instanceof Date ? (
@@ -64,8 +65,8 @@ export const calcTableRenderFuncs = (
           sx={{
             ".MuiInputBase-input": {
               padding: 0,
-              width: 150,
-              maxWidth: 200,
+              width: 90,
+              maxWidth: 90,
             },
           }}
           onChange={(val) => {
@@ -105,7 +106,7 @@ export const calcTableRenderFuncs = (
     BUDGET_ENTRY_KEYS.moneyMoveCategory,
     categoryOptions
   ),
-  ...data[0].balances.map(
+  ...calcs[0].balances.map(
     () =>
       function CreateBalanceDisplay(value: string | number | boolean | Date) {
         return (
@@ -114,7 +115,7 @@ export const calcTableRenderFuncs = (
       }
   ),
   (_, rowNumber) => (
-    <>
+    <div style={{ minWidth: 80 }}>
       <button
         onClick={() => {
           const newCalcs = [...calcs];
@@ -156,6 +157,6 @@ export const calcTableRenderFuncs = (
       >
         +Ряд <ArrowDownward fontSize="inherit" />
       </button>
-    </>
+    </div>
   ),
 ];

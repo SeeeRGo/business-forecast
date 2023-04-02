@@ -17,8 +17,8 @@ const AccountSelect = ({value, onChange, options, label}: Props) => {
       sx={{
         ".MuiInputBase-input": {
           padding: 0,
-          width: 200,
-          maxWidth: 200,
+          width: 160,
+          maxWidth: 160,
         },
       }}
       onChange={(ev) => onChange(ev.target.value)}

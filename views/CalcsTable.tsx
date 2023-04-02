@@ -146,16 +146,28 @@ export const CalcsTable = () => {
               <span key={header} style={{ paddingBottom: 8 }}>
                 {header}
                 <IconButton
+                  disableRipple
+                  sx={{ padding: 0 }}
                   onClick={() => {
-                    const reCalcs = calculateBudget(calcs.filter(({ isSelected }) => !isSelected), [], [], 0);
+                    const reCalcs = calculateBudget(
+                      calcs.filter(({ isSelected }) => !isSelected),
+                      [],
+                      [],
+                      0
+                    );
                     setCalcs(reCalcs);
                   }}
                 >
                   <DeleteSweep />
                 </IconButton>
                 <IconButton
+                  disableRipple
+                  sx={{ padding: 0 }}
                   onClick={() => {
-                    const reCalcs = calcs.map(({ isSelected, ...rest }) => ({ ...rest, isSelected: false}));
+                    const reCalcs = calcs.map(({ isSelected, ...rest }) => ({
+                      ...rest,
+                      isSelected: false,
+                    }));
                     setCalcs(reCalcs);
                   }}
                 >
@@ -166,17 +178,9 @@ export const CalcsTable = () => {
               <Typography key={header}>{header}</Typography>
             )
           )}
-          rowStylingRules={[
-            (row) => (row[0] ? {} : { opacity: 0.1 }),
-          ]}
+          rowStylingRules={[(row) => (row[0] ? {} : { opacity: 0.1 })]}
           calculateIsRowSelected={([_, isSelected]: any[]) => isSelected}
-          renderFuncs={calcTableRenderFuncs(
-            calcs,
-            setCalcs,
-            selectOptions,
-            data,
-            categories,
-          )}
+          renderFuncs={calcTableRenderFuncs(calcs, selectOptions, categories)}
         />
       ) : null}
     </>

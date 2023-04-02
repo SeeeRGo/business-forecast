@@ -6,17 +6,22 @@ import { ExpenseTable } from "@/views/ExpenseTable";
 import { Settings } from "@/views/Settings";
 import { CalcsTable } from "@/views/CalcsTable";
 import { fetchDataFx } from "@/effects/getDataFx";
-import { autosaveFx } from "@/effects/autosaveFx";
+import { autosaveFx, tableUpdateFx } from "@/effects/autosaveFx";
 import { createStore, createEvent, createEffect, sample } from "effector";
 import { setCalcs } from "@/events/calcs";
 import { autosaveTimer } from "@/events/autosave";
 import { $calcs } from "@/stores/calcs";
+import { Accordion, AccordionDetails, AccordionSummary, Collapse } from "@mui/material";
 
 sample({
   clock: autosaveTimer,
   source: $calcs,
   fn: (data) => data,
   target: autosaveFx,
+});
+sample({
+  clock: setCalcs,
+  target: tableUpdateFx,
 });
 
 export default function Home() {
@@ -33,10 +38,17 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.main}>
-        <div style={{ display: 'flex', flexDirection: 'row', columnGap: '16px' }}>
-          <IncomeTable />
-          <ExpenseTable />
-        </div>
+        <Accordion >
+          <AccordionSummary>
+            Постоянные доходы и расходы
+          </AccordionSummary>
+          <AccordionDetails>
+            <div style={{ display: 'flex', flexDirection: 'row', columnGap: '16px' }}>
+              <IncomeTable />
+              <ExpenseTable />
+            </div>
+          </AccordionDetails>
+        </Accordion>
         <Settings />
         <CalcsTable />
       </main>

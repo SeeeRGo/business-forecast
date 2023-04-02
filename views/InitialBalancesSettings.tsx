@@ -11,9 +11,9 @@ export const InitialBalancesSettings = () => {
   return (
     <div>
       <Typography variant="h6">Текущее состояние счетов</Typography>
-      <Grid container rowSpacing={1}>
+      <Grid container rowSpacing={1} columnSpacing={2}>
         {accounts.map(({ name, balance }, i) => (
-          <Grid xs={6} sm={4} item key={name}>
+          <Grid item key={name}>
             <Typography>{name}</Typography>
             <Input
               value={balance}

@@ -1,3 +1,4 @@
+import { setCalcsExternal } from '@/events/calcs';
 import { createClient } from '@supabase/supabase-js'
 
 // Create a single supabase client for interacting with your database
@@ -7,7 +8,7 @@ export const supabase = createClient(
   {
     realtime: {
       params: {
-        eventsPerSecond: 1,
+        eventsPerSecond: 10,
       },
     },
   }
@@ -18,25 +19,10 @@ export const supabase = createClient(
 export const channel = supabase.channel("room1");
 
 // Subscribe registers your client with the server
-channel.subscribe((status) => {
-  if (status === "SUBSCRIBED") {
-    // now you can start broadcasting cursor positions
-    // setInterval(() => {
-    //   channel.send({
-    //     type: "broadcast",
-    //     event: "cursor-pos",
-    //     payload: { x: Math.random(), y: Math.random() },
-    //   });
-    //   console.log(status);
-    // }, 5000);
-  }
-});
+channel.subscribe();
 
 supabase
   .channel("room1")
-  .on("broadcast", { event: "table-update" }, (payload) => console.log('table-data-event', payload))
-//   .subscribe((status) => {
-//     if (status === "SUBSCRIBED") {
-//       // console.log('subscriber', status);
-//     }
-//   });
+  .on("broadcast", { event: "table-update" }, ({payload}) => {
+    return setCalcsExternal(payload);
+  })

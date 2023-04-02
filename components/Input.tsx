@@ -10,7 +10,6 @@ interface Props {
   onChange?: (value: string) => void;
 }
 const Input = ({ type, value, onChange, min, max, label }: Props) => {
-
   const handleChange = useCallback((value: string) => {
     
     if(!onChange) return
@@ -38,7 +37,7 @@ const Input = ({ type, value, onChange, min, max, label }: Props) => {
       }}
       value={value}
       type={type}
-      onChange={ (ev) => {
+      onChange={(ev) => {
           handleChange(ev.target.value);
         }}
     />

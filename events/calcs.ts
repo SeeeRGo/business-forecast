@@ -1,7 +1,9 @@
-import { IAccount, ParsedBudgetEntry, ParsedExpenses, ParsedIncomes, RegularMoneMove } from "@/types";
+import { IAccount, ParsedBudgetEntry, ParsedExpenses, ParsedIncomes, RegularMoneMove, SavedBudgetEntry } from "@/types";
 import { createEvent } from "effector";
 
 export const setCalcs = createEvent<ParsedBudgetEntry[]>()
+
+export const setCalcsExternal = createEvent<SavedBudgetEntry[]>()
 
 export const setIncomes = createEvent<ParsedIncomes[]>()
 

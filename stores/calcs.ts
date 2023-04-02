@@ -1,15 +1,19 @@
 import { fetchDataFx } from "@/effects/getDataFx";
-import { setCalcs, setExpenses, setIncomes, setInitialBalance } from "@/events/calcs";
+import { setCalcs, setCalcsExternal, setExpenses, setIncomes, setInitialBalance } from "@/events/calcs";
 import { IAccount, ParsedBudgetEntry, ParsedExpenses, ParsedIncomes } from "@/types";
 import { calculateBalances } from "@/utils/calculateBalances";
 import { sortBudgetEntries } from "@/utils/utils";
-import { add, differenceInCalendarMonths, differenceInMonths, format } from "date-fns";
+import { add, differenceInCalendarMonths, differenceInMonths, format, parseISO } from "date-fns";
 import { ru } from "date-fns/locale";
 import { combine, createStore } from "effector";
 
 export const $calcs = createStore<ParsedBudgetEntry[]>([])
   .on(fetchDataFx.doneData, (_, { calcs }) => (calcs))
   .on(setCalcs, (_, calcs) => calcs)
+  .on(setCalcsExternal, (_, calcs) => calcs.map((entry) => ({
+                        ...entry,
+                        date: parseISO(entry.date)}
+                        )))
 
 export const $calcHeaders = createStore<string[]>([])
   .on(fetchDataFx.doneData, (_, { calcHeaders }) => calcHeaders)
