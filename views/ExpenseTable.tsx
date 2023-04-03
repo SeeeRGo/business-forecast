@@ -1,13 +1,20 @@
 import Table from '@/components/Table';
+import { expenseTableUpdateFx } from '@/effects/autosaveFx';
 import { setExpenses } from '@/events/calcs';
 import { $expenses, $expensesHeaders, $moneyMoveCategories, $selectOptions } from '@/stores/calcs';
 import { ParsedExpenses } from '@/types';
 import { createInputRenderer, createSelectRenderer, createTextAreaRenderer } from '@/utils/createInputRender';
 import { Delete } from '@mui/icons-material';
 import { Button, Typography } from '@mui/material';
+import { sample } from 'effector';
 import { useStore } from 'effector-react';
 import React from 'react'
 import { v4 as uuidv4 } from "uuid";
+
+sample({
+  clock: setExpenses,
+  target: expenseTableUpdateFx,
+});
 
 export const ExpenseTable = () => {
   const selectOptions = useStore($selectOptions)

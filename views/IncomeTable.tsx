@@ -1,4 +1,5 @@
 import Table from "@/components/Table";
+import { incomeTableUpdateFx } from "@/effects/autosaveFx";
 import { setIncomes } from "@/events/calcs";
 import { $incomeHeaders, $incomes, $moneyMoveCategories, $selectOptions } from "@/stores/calcs";
 import { ParsedIncomes } from "@/types";
@@ -9,9 +10,15 @@ import {
 } from "@/utils/createInputRender";
 import { Delete } from "@mui/icons-material";
 import { Button, Typography } from "@mui/material";
+import { sample } from "effector";
 import { useStore } from "effector-react";
 import React from "react";
 import { v4 as uuidv4 } from "uuid";
+
+sample({
+  clock: setIncomes,
+  target: incomeTableUpdateFx,
+});
 
 export const IncomeTable = () => {
   const selectOptions = useStore($selectOptions)

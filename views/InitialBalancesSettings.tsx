@@ -1,9 +1,16 @@
 import Input from '@/components/Input';
+import { initialBalanceUpdateFx } from '@/effects/autosaveFx';
 import { setInitialBalance } from '@/events/calcs';
 import { $initialBalances } from '@/stores/calcs';
 import { Grid, Typography } from '@mui/material';
+import { sample } from 'effector';
 import { useStore } from 'effector-react';
 import React from 'react';
+
+sample({
+  clock: setInitialBalance,
+  target: initialBalanceUpdateFx,
+});
 
 export const InitialBalancesSettings = () => {
   const accounts = useStore($initialBalances)

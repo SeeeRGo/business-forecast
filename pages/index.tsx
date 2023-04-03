@@ -6,12 +6,12 @@ import { ExpenseTable } from "@/views/ExpenseTable";
 import { Settings } from "@/views/Settings";
 import { CalcsTable } from "@/views/CalcsTable";
 import { fetchDataFx } from "@/effects/getDataFx";
-import { autosaveFx, tableUpdateFx } from "@/effects/autosaveFx";
-import { createStore, createEvent, createEffect, sample } from "effector";
+import { autosaveFx, calcTableUpdateFx } from "@/effects/autosaveFx";
+import { sample } from "effector";
 import { setCalcs } from "@/events/calcs";
 import { autosaveTimer } from "@/events/autosave";
 import { $calcs } from "@/stores/calcs";
-import { Accordion, AccordionDetails, AccordionSummary, Collapse } from "@mui/material";
+import { Accordion, AccordionDetails, AccordionSummary } from "@mui/material";
 
 sample({
   clock: autosaveTimer,
@@ -19,9 +19,10 @@ sample({
   fn: (data) => data,
   target: autosaveFx,
 });
+
 sample({
   clock: setCalcs,
-  target: tableUpdateFx,
+  target: calcTableUpdateFx,
 });
 
 export default function Home() {

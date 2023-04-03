@@ -1,4 +1,4 @@
-import { setCalcsExternal } from '@/events/calcs';
+import { setCalcsExternal, setExpensesExternal, setIncomesExternal, setInitialBalanceExternal } from '@/events/calcs';
 import { createClient } from '@supabase/supabase-js'
 
 // Create a single supabase client for interacting with your database
@@ -8,7 +8,7 @@ export const supabase = createClient(
   {
     realtime: {
       params: {
-        eventsPerSecond: 10,
+        eventsPerSecond: 20,
       },
     },
   }
@@ -25,4 +25,13 @@ supabase
   .channel("room1")
   .on("broadcast", { event: "table-update" }, ({payload}) => {
     return setCalcsExternal(payload);
+  })
+  .on("broadcast", { event: "initial-balance-update" }, ({payload}) => {
+    return setInitialBalanceExternal(payload);
+  })
+  .on("broadcast", { event: "income-update" }, ({payload}) => {
+    return setIncomesExternal(payload);
+  })
+  .on("broadcast", { event: "expense-update" }, ({payload}) => {
+    return setExpensesExternal(payload);
   })

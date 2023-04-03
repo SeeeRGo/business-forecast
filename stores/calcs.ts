@@ -1,5 +1,5 @@
 import { fetchDataFx } from "@/effects/getDataFx";
-import { setCalcs, setCalcsExternal, setExpenses, setIncomes, setInitialBalance } from "@/events/calcs";
+import { setCalcs, setCalcsExternal, setExpenses, setExpensesExternal, setIncomes, setIncomesExternal, setInitialBalance, setInitialBalanceExternal } from "@/events/calcs";
 import { IAccount, ParsedBudgetEntry, ParsedExpenses, ParsedIncomes } from "@/types";
 import { calculateBalances } from "@/utils/calculateBalances";
 import { sortBudgetEntries } from "@/utils/utils";
@@ -21,6 +21,7 @@ export const $calcHeaders = createStore<string[]>([])
 export const $incomes = createStore<ParsedIncomes[]>([])
   .on(fetchDataFx.doneData, (_, { incomes }) => incomes)
   .on(setIncomes, (_, incomes) => incomes)
+  .on(setIncomesExternal, (_, incomes) => incomes)
 
 export const $incomeHeaders = createStore<string[]>([])
   .on(fetchDataFx.doneData, (_, { incomeHeaders }) => incomeHeaders)
@@ -28,6 +29,7 @@ export const $incomeHeaders = createStore<string[]>([])
 export const $expenses = createStore<ParsedExpenses[]>([])
   .on(fetchDataFx.doneData, (_, { expenses }) => expenses)
   .on(setExpenses, (_, expenses) => expenses)
+  .on(setExpensesExternal, (_, expenses) => expenses)
 
 export const $expensesHeaders = createStore<string[]>([])
   .on(fetchDataFx.doneData, (_, { expenceHeaders }) => expenceHeaders)
@@ -35,6 +37,7 @@ export const $expensesHeaders = createStore<string[]>([])
 export const $initialBalances = createStore<IAccount[]>([])
   .on(fetchDataFx.doneData, (_, { initialBalances }) => initialBalances)
   .on(setInitialBalance, (_, initialBalances) => initialBalances)
+  .on(setInitialBalanceExternal, (_, initialBalances) => initialBalances)
 
 export const $selectOptions = $calcHeaders.map(headers => headers.slice(8, -1))
 

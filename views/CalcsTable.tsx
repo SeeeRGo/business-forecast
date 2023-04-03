@@ -2,7 +2,7 @@ import Table from "@/components/Table";
 import React, { useEffect, useState } from "react";
 import { calcTableRenderFuncs } from "@/configs/calcsTable";
 import { IconButton, Typography } from "@mui/material";
-import { DeleteSweep, Deselect, Sort } from "@mui/icons-material";
+import { DeleteSweep, Deselect } from "@mui/icons-material";
 import { calculateBudget } from "@/utils/utils";
 import { useStore } from "effector-react";
 import { $calcHeaders, $calcs, $calcsData, $moneyMoveCategories, $selectOptions } from "@/stores/calcs";
