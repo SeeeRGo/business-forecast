@@ -1,5 +1,7 @@
+import Input from "@/components/Input";
 import { setCalcs } from "@/events/calcs";
 import { $calcs, $expenses, $incomes } from "@/stores/calcs";
+import { SavedBudgetEntry } from "@/types";
 import { supabase } from "@/utils/db";
 import { calculateBudget, sortBudgetEntries } from "@/utils/utils";
 import { Delete, Save, SaveAs } from "@mui/icons-material";
@@ -7,12 +9,10 @@ import {
   Button,
   Divider,
   IconButton,
-  Input,
   Menu,
   MenuItem,
-  Typography,
 } from "@mui/material";
-import { add, differenceInCalendarMonths, format, isValid } from "date-fns";
+import { add, differenceInCalendarMonths, format, isValid, parseISO } from "date-fns";
 import { ru } from "date-fns/locale";
 import { useStore } from "effector-react";
 import React, { useEffect, useState } from "react";
@@ -107,8 +107,8 @@ export const VariantsMenu = () => {
           <Input
             label={"Название варианта"}
             value={variantName}
-            onChange={(ev) => {
-              setVariantName(ev.target.value);
+            onChange={(value) => {
+              setVariantName(value);
             }}
           />
           <IconButton
