@@ -82,3 +82,5 @@ export interface RegularMoneMove {
   comment: string
   regularity: 'monthly'
 }
+
+export interface Save

@@ -8,10 +8,13 @@ import { CalcsTable } from "@/views/CalcsTable";
 import { fetchDataFx } from "@/effects/getDataFx";
 import { autosaveFx, calcTableUpdateFx } from "@/effects/autosaveFx";
 import { sample } from "effector";
-import { setCalcs } from "@/events/calcs";
+import { setCalcs, setCalcsExternal } from "@/events/calcs";
 import { autosaveTimer } from "@/events/autosave";
 import { $calcs } from "@/stores/calcs";
 import { Accordion, AccordionDetails, AccordionSummary } from "@mui/material";
+import { UploadRow } from "@/views/UploadRow";
+import { supabase } from "@/utils/db";
+import { ParsedBudgetEntry, SavedBudgetEntry } from "@/types";
 
 sample({
   clock: autosaveTimer,
@@ -26,9 +29,18 @@ sample({
 });
 
 export default function Home() {
+  // useEffect(() => {
+  //   fetchDataFx()
+  // }, []);
+
   useEffect(() => {
-    fetchDataFx()
-  }, []);
+    supabase.from('data').select().eq('variant_name', 'Базовый').then(({ data }) => {
+      const parsedCalcs = JSON.parse(data?.at(0)?.calcs ?? '[]') as SavedBudgetEntry[]
+      console.log('parsedCalcs', parsedCalcs);
+      
+      setCalcsExternal(parsedCalcs)
+    });
+  }, [])
 
   return (
     <>
@@ -39,6 +51,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.main}>
+        <UploadRow />
         <Accordion >
           <AccordionSummary>
             Постоянные доходы и расходы

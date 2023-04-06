@@ -3,3 +3,6 @@
 1. Склонировать данный репозиторий
 2. Сходить в [Supabase](https://supabase.com/docs/guides/getting-started/tutorials/with-nextjs#get-the-api-keys) и обзавестись `NEXT_PUBLIC_SUPABASE_URL` и `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 3. Заполнить полученные значения в файле .env.local
+4. yarn
+5. yarn dev
+6. Результат доступен на localhost:3000
