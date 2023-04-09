@@ -5,7 +5,15 @@ import { IncomeTable } from "@/views/IncomeTable";
 import { ExpenseTable } from "@/views/ExpenseTable";
 import { Settings } from "@/views/Settings";
 import { CalcsTable } from "@/views/CalcsTable";
-import { fetchDataFx } from "@/effects/getDataFx";
+import {
+  fetchCalcsFx,
+  fetchCalcsHeadersFx,
+  fetchExpenseHeadersFx,
+  fetchExpensesFx,
+  fetchIncomeHeadersFx,
+  fetchIncomesFx,
+  fetchInitialBalancesFx,
+} from "@/effects/getDataFx";
 import { autosaveFx, calcTableUpdateFx } from "@/effects/autosaveFx";
 import { sample } from "effector";
 import { setCalcs, setCalcsExternal } from "@/events/calcs";
@@ -29,18 +37,33 @@ sample({
 });
 
 export default function Home() {
-  // useEffect(() => {
-  //   fetchDataFx()
-  // }, []);
+  useEffect(() => {
+    fetchInitialBalancesFx();
+  }, []);
 
   useEffect(() => {
-    supabase.from('data').select().eq('variant_name', 'Базовый').then(({ data }) => {
-      const parsedCalcs = JSON.parse(data?.at(0)?.calcs ?? '[]') as SavedBudgetEntry[]
-      console.log('parsedCalcs', parsedCalcs);
-      
-      setCalcsExternal(parsedCalcs)
-    });
-  }, [])
+    fetchCalcsFx();
+  }, []);
+
+  useEffect(() => {
+    fetchCalcsHeadersFx();
+  }, []);
+
+  useEffect(() => {
+    fetchIncomesFx();
+  }, []);
+
+  useEffect(() => {
+    fetchIncomeHeadersFx();
+  }, []);
+
+  useEffect(() => {
+    fetchExpensesFx();
+  }, []);
+
+  useEffect(() => {
+    fetchExpenseHeadersFx();
+  }, []);
 
   return (
     <>
@@ -52,12 +75,16 @@ export default function Home() {
       </Head>
       <main className={styles.main}>
         <UploadRow />
-        <Accordion >
-          <AccordionSummary>
-            Постоянные доходы и расходы
-          </AccordionSummary>
+        <Accordion>
+          <AccordionSummary>Постоянные доходы и расходы</AccordionSummary>
           <AccordionDetails>
-            <div style={{ display: 'flex', flexDirection: 'row', columnGap: '16px' }}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                rowGap: "16px",
+              }}
+            >
               <IncomeTable />
               <ExpenseTable />
             </div>

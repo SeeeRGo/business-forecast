@@ -48,6 +48,8 @@ export const CalcsTable = () => {
   const calcs = useStore($calcs)
   const calcHeaders = useStore($calcHeaders)
   const selectOptions = useStore($selectOptions)
+  console.log("calcHeaders", calcHeaders);
+  
 
   const data = useStore($calcsData);
 

@@ -83,4 +83,4 @@ export interface RegularMoneMove {
   regularity: 'monthly'
 }
 
-export interface Save
+// export interface Save
