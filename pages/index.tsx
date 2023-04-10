@@ -16,13 +16,11 @@ import {
 } from "@/effects/getDataFx";
 import { autosaveFx, calcTableUpdateFx } from "@/effects/autosaveFx";
 import { sample } from "effector";
-import { setCalcs, setCalcsExternal } from "@/events/calcs";
+import { setCalcs } from "@/events/calcs";
 import { autosaveTimer } from "@/events/autosave";
 import { $calcs } from "@/stores/calcs";
 import { Accordion, AccordionDetails, AccordionSummary } from "@mui/material";
 import { UploadRow } from "@/views/UploadRow";
-import { supabase } from "@/utils/db";
-import { ParsedBudgetEntry, SavedBudgetEntry } from "@/types";
 
 sample({
   clock: autosaveTimer,
