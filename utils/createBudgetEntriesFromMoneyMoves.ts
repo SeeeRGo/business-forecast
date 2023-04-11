@@ -4,7 +4,6 @@ import { v4 as uuidv4 } from "uuid";
 
 export const createBudgetEntriesFromMoneyMoves = (move: RegularMoneMove, accountOptions: string[], start?: Date, end?: Date): ParsedBudgetEntry[] => {
   const entries: ParsedBudgetEntry[] = [];
-  console.log('Move', move);
   
   if (start && end) {
     const months = differenceInMonths(end, start);

@@ -18,14 +18,16 @@ import { autosaveFx, calcTableUpdateFx } from "@/effects/autosaveFx";
 import { sample } from "effector";
 import { setCalcs } from "@/events/calcs";
 import { autosaveTimer } from "@/events/autosave";
-import { $calcs } from "@/stores/calcs";
+import { $calcs, $expenses, $incomes, $initialBalances } from "@/stores/calcs";
 import { Accordion, AccordionDetails, AccordionSummary } from "@mui/material";
 import { UploadRow } from "@/views/UploadRow";
 
 sample({
   clock: autosaveTimer,
-  source: $calcs,
-  fn: (data) => data,
+  source: {
+    calcs: $calcs, expenses: $expenses, incomes: $incomes, balances: $initialBalances
+  },
+  fn: ({calcs, expenses, incomes, balances}) => ({calcs, expenses, incomes, balances}),
   target: autosaveFx,
 });
 

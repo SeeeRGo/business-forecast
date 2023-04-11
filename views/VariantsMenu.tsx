@@ -25,8 +25,6 @@ export const VariantsMenu = () => {
   const incomes = useStore($incomes);
 
   const expenses = useStore($expenses);
-  console.log('expenses', expenses);
-  console.log('incomes', incomes);
   
   const initialBalances = useStore($initialBalances)
 

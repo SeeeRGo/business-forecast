@@ -1,12 +1,16 @@
-import { IAccount, ParsedBudgetEntry, ParsedExpenses, ParsedIncomes } from "@/types";
+import { IAccount, ParsedBudgetEntry, ParsedExpenses, ParsedIncomes, SaveData } from "@/types";
 import { channel, supabase } from "@/utils/db";
 import { createEffect } from "effector";
 
-export const autosaveFx = createEffect(async (data: ParsedBudgetEntry[]) => {
+export const autosaveFx = createEffect(async ({ calcs, incomes, expenses, balances }: SaveData) => {
   await supabase
-    .from("calculations")
-    .update({ values: JSON.stringify(data) })
-    .eq("name", "Autosave")  
+    .from("data")
+    .update({
+      calcs: JSON.stringify(calcs),
+      initial_balances: JSON.stringify(balances),
+      expenses: JSON.stringify(expenses),
+      incomes: JSON.stringify(incomes), })
+    .eq("variant_name", "Autosave")  
 })
 
 export const calcTableUpdateFx = createEffect(async (data: ParsedBudgetEntry[]) => {

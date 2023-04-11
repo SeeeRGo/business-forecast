@@ -83,4 +83,9 @@ export interface RegularMoneMove {
   regularity: 'monthly'
 }
 
-// export interface Save
+export interface SaveData {
+  calcs: ParsedBudgetEntry[]
+  expenses: ParsedExpenses[]
+  incomes: ParsedIncomes[]
+  balances: IAccount[]
+}
