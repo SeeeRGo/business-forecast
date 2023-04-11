@@ -1,6 +1,6 @@
 import Input from "@/components/Input";
-import { setCalcs } from "@/events/calcs";
-import { $calcs, $expenses, $incomes } from "@/stores/calcs";
+import { setCalcs, setExpenses, setIncomes, setInitialBalance } from "@/events/calcs";
+import { $calcs, $expenses, $incomes, $initialBalances } from "@/stores/calcs";
 import { SavedBudgetEntry } from "@/types";
 import { supabase } from "@/utils/db";
 import { calculateBudget, sortBudgetEntries } from "@/utils/utils";
@@ -25,6 +25,10 @@ export const VariantsMenu = () => {
   const incomes = useStore($incomes);
 
   const expenses = useStore($expenses);
+  console.log('expenses', expenses);
+  console.log('incomes', incomes);
+  
+  const initialBalances = useStore($initialBalances)
 
   const sortedCalcs = sortBudgetEntries(calcs);
   const earliestDate = sortedCalcs.at(0)?.date;
@@ -61,10 +65,10 @@ export const VariantsMenu = () => {
 
   useEffect(() => {
     supabase
-      .from("calculations")
-      .select("name")
+      .from("data")
+      .select("variant_name")
       .order("id", { ascending: false })
-      .then(({ data }) => setVariantList(data?.map(({ name }) => name) ?? []));
+      .then(({ data }) => setVariantList(data?.map(({ variant_name }) => variant_name) ?? []));
   }, []);
   return (
     <div>
@@ -113,9 +117,12 @@ export const VariantsMenu = () => {
           />
           <IconButton
             onClick={async () => {
-              const { error } = await supabase.from("calculations").insert({
-                name: variantName || "default",
-                values: JSON.stringify(calcs),
+              const { error } = await supabase.from("data").insert({
+                variant_name: variantName || "default",
+                calcs: JSON.stringify(calcs),
+                initial_balances: JSON.stringify(initialBalances),
+                expenses: JSON.stringify(expenses),
+                incomes: JSON.stringify(incomes),
               });
               setVariantList((val) => [...val, variantName]);
               setVariantName("");
@@ -130,19 +137,21 @@ export const VariantsMenu = () => {
             <Button
               onClick={async () => {
                 const { data: variants } = await supabase
-                  .from("calculations")
+                  .from("data")
                   .select()
-                  .eq("name", name);
-
+                  .eq("variant_name", name);
                 if (variants?.length) {
                   setCalcs(
-                    JSON.parse(variants[0].values).map(
+                    JSON.parse(variants[0].calcs).map(
                       (entry: SavedBudgetEntry) => ({
                         ...entry,
                         date: parseISO(entry.date),
                       })
                     )
                   );
+                  setInitialBalance(JSON.parse(variants[0].initial_balances))
+                  setExpenses(JSON.parse(variants[0].expenses))
+                  setIncomes(JSON.parse(variants[0].incomes))
                 }
                 handleClose();
               }}
@@ -152,9 +161,14 @@ export const VariantsMenu = () => {
             <IconButton
               onClick={async () => {
                 const { error } = await supabase
-                  .from("calculations")
-                  .update({ values: JSON.stringify(calcs) })
-                  .eq("name", name);
+                  .from("data")
+                  .update({ 
+                    calcs: JSON.stringify(calcs),
+                    initial_balances: JSON.stringify(initialBalances),
+                    expenses: JSON.stringify(expenses),
+                    incomes: JSON.stringify(incomes),
+                   })
+                  .eq("variant_name", name);
                 handleClose();
               }}
             >
@@ -163,9 +177,9 @@ export const VariantsMenu = () => {
             <IconButton
               onClick={async () => {
                 const { error } = await supabase
-                  .from("calculations")
+                  .from("data")
                   .delete()
-                  .eq("name", name);
+                  .eq("variant_name", name);
                 setVariantList(variantList.filter((val) => val !== name));
                 handleClose();
               }}
