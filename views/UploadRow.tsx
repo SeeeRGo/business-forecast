@@ -5,6 +5,8 @@ import { IAccount, ParsedBudgetEntry, ParsedExpenses, ParsedIncomes } from '@/ty
 import { parse } from 'date-fns'
 import { v4 as uuidv4 } from "uuid";
 import { supabase } from '@/utils/db'
+import { useStore } from 'effector-react'
+import { $userId } from '@/stores/stores'
 
 const defaultCalcHeaders: string[] = ['Дата', 'Приход',	'Расход',	'Комментарий', 'Счет', 'Статья бюджета']
 const defaultIncomeHeaders: string[] = ['Число месяца', 'Доход', 'Описание', 'Счет', 'Статья бюджета']
@@ -28,6 +30,7 @@ export const UploadRow = () => {
   const [expenseFilename, setExpenseFilename] = useState("");
 
   const [initial, setInitial] = useState<IAccount[]>([])
+  const userId = useStore($userId)
   return (
     <div style={{ display: "flex", flexDirection: "row" }}>
       <input
@@ -172,47 +175,55 @@ export const UploadRow = () => {
       {expenseFilename ? <Typography>{expenseFilename}</Typography> : null}
       <Button
         onClick={async () => {
-          const { error, data } = await supabase
-            .from("data")
-            .insert({
-              variant_name: "Базовый",
-              calcs: JSON.stringify(calcs),
-              initial_balances: JSON.stringify(initial),
-              expenses: JSON.stringify(expenses),
-              incomes: JSON.stringify(incomes),
-            })
-            .select();
-          if (data?.at(0)?.id) {
-            const { error } = await supabase.from("headers").insert({
-              variant_id: data?.at(0)?.id,
-              calcHeaders: JSON.stringify(calcHeaders),
-              incomeHeaders: JSON.stringify(incomeHeaders),
-              expenseHeaders: JSON.stringify(expensesHeaders),
-            });
+          if(userId) {
+            const { error, data } = await supabase
+              .from("data")
+              .insert({
+                variant_name: "Базовый",
+                user_id: userId,
+                calcs: JSON.stringify(calcs),
+                initial_balances: JSON.stringify(initial),
+                expenses: JSON.stringify(expenses),
+                incomes: JSON.stringify(incomes),
+              })
+              .select();
+              if (data?.at(0)?.id) {
+                const { error } = await supabase.from("headers").insert({
+                  variant_id: data?.at(0)?.id,
+                  user_id: userId,
+                  calcHeaders: JSON.stringify(calcHeaders),
+                  incomeHeaders: JSON.stringify(incomeHeaders),
+                  expenseHeaders: JSON.stringify(expensesHeaders),
+                });
+              }
           }
         }}
       >
         Сохранить базовый вариант
       </Button>
       <Button onClick={async () => {
-        const { error, data } = await supabase
-        .from("data")
-        .insert({
-          variant_name: "Пустой",
-          calcs: JSON.stringify([]),
-          initial_balances: JSON.stringify(defaultInitialBalances),
-          expenses: JSON.stringify([]),
-          incomes: JSON.stringify([]),
-        })
-        .select();
-      if (data?.at(0)?.id) {
-        const { error } = await supabase.from("headers").insert({
-          variant_id: data?.at(0)?.id,
-          calcHeaders: JSON.stringify(defaultCalcHeaders),
-          incomeHeaders: JSON.stringify(defaultIncomeHeaders),
-          expenseHeaders: JSON.stringify(defaultExpenseHeaders),
-        });
-      }
+        if(userId) {
+          const { error, data } = await supabase
+            .from("data")
+            .insert({
+              variant_name: "Пустой",
+              user_id: userId,
+              calcs: JSON.stringify([]),
+              initial_balances: JSON.stringify(defaultInitialBalances),
+              expenses: JSON.stringify([]),
+              incomes: JSON.stringify([]),
+            })
+            .select();
+            if (data?.at(0)?.id) {
+              const { error } = await supabase.from("headers").insert({
+                variant_id: data?.at(0)?.id,
+                user_id: userId,
+                calcHeaders: JSON.stringify(defaultCalcHeaders),
+                incomeHeaders: JSON.stringify(defaultIncomeHeaders),
+                expenseHeaders: JSON.stringify(defaultExpenseHeaders),
+              });
+            }
+        }
       }}>Создать пустой вариант</Button>
     </div>
   );

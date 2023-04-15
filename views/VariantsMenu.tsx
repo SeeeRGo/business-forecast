@@ -1,6 +1,7 @@
 import Input from "@/components/Input";
 import { setCalcs, setExpenses, setIncomes, setInitialBalance } from "@/events/calcs";
 import { $calcs, $expenses, $incomes, $initialBalances } from "@/stores/calcs";
+import { $userId } from "@/stores/stores";
 import { SavedBudgetEntry } from "@/types";
 import { supabase } from "@/utils/db";
 import { calculateBudget, sortBudgetEntries } from "@/utils/utils";
@@ -20,6 +21,7 @@ import React, { useEffect, useState } from "react";
 export const VariantsMenu = () => {
   const [variantList, setVariantList] = useState<string[]>([]);
   const [variantName, setVariantName] = useState("");
+  const userId = useStore($userId);
 
   const calcs = useStore($calcs);
   const incomes = useStore($incomes);
@@ -62,12 +64,17 @@ export const VariantsMenu = () => {
   };
 
   useEffect(() => {
-    supabase
-      .from("data")
-      .select("variant_name")
-      .order("id", { ascending: false })
-      .then(({ data }) => setVariantList(data?.map(({ variant_name }) => variant_name) ?? []));
-  }, []);
+    if(userId) {
+      supabase
+        .from("data")
+        .select("variant_name")
+        .eq("user_id", userId)
+        .order("id", { ascending: false })
+        .then(({ data }) =>
+          setVariantList(data?.map(({ variant_name }) => variant_name) ?? [])
+        );
+    }
+  }, [userId]);
   return (
     <div>
       <Button
@@ -115,15 +122,18 @@ export const VariantsMenu = () => {
           />
           <IconButton
             onClick={async () => {
-              const { error } = await supabase.from("data").insert({
-                variant_name: variantName || "default",
-                calcs: JSON.stringify(calcs),
-                initial_balances: JSON.stringify(initialBalances),
-                expenses: JSON.stringify(expenses),
-                incomes: JSON.stringify(incomes),
-              });
-              setVariantList((val) => [...val, variantName]);
-              setVariantName("");
+              if(userId) {
+                const { error } = await supabase.from("data").insert({
+                  variant_name: variantName || "default",
+                  user_id: userId,
+                  calcs: JSON.stringify(calcs),
+                  initial_balances: JSON.stringify(initialBalances),
+                  expenses: JSON.stringify(expenses),
+                  incomes: JSON.stringify(incomes),
+                });
+                setVariantList((val) => [...val, variantName]);
+                setVariantName("");
+              }
             }}
           >
             <Save />
