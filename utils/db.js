@@ -1,11 +1,20 @@
-import { setCalcsExternal, setExpensesExternal, setIncomesExternal, setInitialBalanceExternal } from '@/events/calcs';
-import { createClient } from '@supabase/supabase-js'
+import {
+  setCalcsExternal,
+  setExpensesExternal,
+  setIncomesExternal,
+  setInitialBalanceExternal,
+} from "@/events/calcs";
+import { createClient } from "@supabase/supabase-js";
 
 // Create a single supabase client for interacting with your database
 export const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY,
   {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
     realtime: {
       params: {
         eventsPerSecond: 20,
@@ -23,15 +32,15 @@ channel.subscribe();
 
 supabase
   .channel("room1")
-  .on("broadcast", { event: "table-update" }, ({payload}) => {
+  .on("broadcast", { event: "table-update" }, ({ payload }) => {
     return setCalcsExternal(payload);
   })
-  .on("broadcast", { event: "initial-balance-update" }, ({payload}) => {
+  .on("broadcast", { event: "initial-balance-update" }, ({ payload }) => {
     return setInitialBalanceExternal(payload);
   })
-  .on("broadcast", { event: "income-update" }, ({payload}) => {
+  .on("broadcast", { event: "income-update" }, ({ payload }) => {
     return setIncomesExternal(payload);
   })
-  .on("broadcast", { event: "expense-update" }, ({payload}) => {
+  .on("broadcast", { event: "expense-update" }, ({ payload }) => {
     return setExpensesExternal(payload);
-  })
+  });
