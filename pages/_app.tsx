@@ -26,7 +26,7 @@ export default function App({ Component, pageProps }: AppProps) {
     return () => subscription.unsubscribe();
   }, []);
 
-  if (!currentSession) {
+  if (false) {
     return <Auth supabaseClient={supabase} appearance={{ theme: ThemeSupa }} />;
   } else {
     return <Component {...pageProps} />;

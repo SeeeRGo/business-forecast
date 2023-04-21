@@ -1,5 +1,6 @@
-import { add } from "date-fns";
-import { IAccount, ParsedBudgetEntry, ParsedConstantMoneyMove, ParsedExpenses, ParsedIncomes } from "../types";
+import { setCalcs, setExpenses, setIncomes, setInitialBalance } from "@/events/calcs";
+import { add, parseISO } from "date-fns";
+import { IAccount, ParsedBudgetEntry, ParsedConstantMoneyMove, ParsedExpenses, ParsedIncomes, SavedBudgetEntry } from "../types";
 
 export const calculateBudget = (
   calcs: ParsedBudgetEntry[],
@@ -59,3 +60,16 @@ const createBudgetEntriesFromMoneyMoves = (
     balances
   };
 };
+
+export const parseSavedVariant = (variant: Record<string, string>) => {
+  setCalcs(JSON.parse(variant.calcs).map(
+      (entry: SavedBudgetEntry) => ({
+        ...entry,
+        date: parseISO(entry.date),
+      })
+    )
+  );
+  setInitialBalance(JSON.parse(variant.initial_balances))
+  setExpenses(JSON.parse(variant.expenses))
+  setIncomes(JSON.parse(variant.incomes))
+}

@@ -1,10 +1,9 @@
 import Input from "@/components/Input";
-import { setCalcs, setExpenses, setIncomes, setInitialBalance } from "@/events/calcs";
+import { setCalcs } from "@/events/calcs";
 import { $calcs, $expenses, $incomes, $initialBalances } from "@/stores/calcs";
 import { $userId } from "@/stores/stores";
-import { SavedBudgetEntry } from "@/types";
 import { supabase } from "@/utils/db";
-import { calculateBudget, sortBudgetEntries } from "@/utils/utils";
+import { calculateBudget, parseSavedVariant, sortBudgetEntries } from "@/utils/utils";
 import { Delete, Save, SaveAs } from "@mui/icons-material";
 import {
   Button,
@@ -13,7 +12,7 @@ import {
   Menu,
   MenuItem,
 } from "@mui/material";
-import { add, differenceInCalendarMonths, format, isValid, parseISO } from "date-fns";
+import { add, differenceInCalendarMonths, format, isValid } from "date-fns";
 import { ru } from "date-fns/locale";
 import { useStore } from "effector-react";
 import React, { useEffect, useState } from "react";
@@ -33,14 +32,14 @@ export const VariantsMenu = () => {
   const sortedCalcs = sortBudgetEntries(calcs);
   const earliestDate = sortedCalcs.at(0)?.date;
   const latestDate = sortedCalcs.at(-1)?.date;
-  const earliestMonth =
-    earliestDate && isValid(earliestDate)
-      ? format(earliestDate, "MMMM", { locale: ru })
-      : "какого-то месяца";
-  const latestMonth =
-    latestDate && isValid(latestDate)
-      ? format(latestDate, "LLLL", { locale: ru })
-      : "какой-то месяц";
+  // const earliestMonth =
+  //   earliestDate && isValid(earliestDate)
+  //     ? format(earliestDate, "MMMM", { locale: ru })
+  //     : "какого-то месяца";
+  // const latestMonth =
+  //   latestDate && isValid(latestDate)
+  //     ? format(latestDate, "LLLL", { locale: ru })
+  //     : "какой-то месяц";
   const nextDate =
     latestDate && isValid(latestDate)
       ? add(latestDate, { months: 1 })
@@ -149,17 +148,7 @@ export const VariantsMenu = () => {
                   .select()
                   .eq("variant_name", name);
                 if (variants?.length) {
-                  setCalcs(
-                    JSON.parse(variants[0].calcs).map(
-                      (entry: SavedBudgetEntry) => ({
-                        ...entry,
-                        date: parseISO(entry.date),
-                      })
-                    )
-                  );
-                  setInitialBalance(JSON.parse(variants[0].initial_balances))
-                  setExpenses(JSON.parse(variants[0].expenses))
-                  setIncomes(JSON.parse(variants[0].incomes))
+                  parseSavedVariant(variants[0])
                 }
                 handleClose();
               }}
