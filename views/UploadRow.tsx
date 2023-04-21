@@ -16,7 +16,11 @@ const defaultInitialBalances: IAccount[] = defaultAccounts.map(account => ({
   name: account,
   balance: 0
 }))
-export const UploadRow = () => {
+
+interface IProps {
+  ignoreAuth?: boolean;
+}
+export const UploadRow = ({ ignoreAuth }: IProps) => {
   const [calcs, setCalcs] = useState<ParsedBudgetEntry[]>([])
   const [calcHeaders, setCalcHeaders] = useState<string[]>([])
   const [calcFilename, setCalcFilename] = useState('')
@@ -175,7 +179,7 @@ export const UploadRow = () => {
       {expenseFilename ? <Typography>{expenseFilename}</Typography> : null}
       <Button
         onClick={async () => {
-          if(userId) {
+          if(userId || ignoreAuth) {
             const { error, data } = await supabase
               .from("data")
               .insert({
@@ -202,7 +206,7 @@ export const UploadRow = () => {
         Сохранить базовый вариант
       </Button>
       <Button onClick={async () => {
-        if(userId) {
+        if(userId || ignoreAuth) {
           const { error, data } = await supabase
             .from("data")
             .insert({

@@ -17,7 +17,10 @@ import { ru } from "date-fns/locale";
 import { useStore } from "effector-react";
 import React, { useEffect, useState } from "react";
 
-export const VariantsMenu = () => {
+interface IProps {
+  ignoreAuth?: boolean;
+}
+export const VariantsMenu = ({ ignoreAuth }: IProps) => {
   const [variantList, setVariantList] = useState<string[]>([]);
   const [variantName, setVariantName] = useState("");
   const userId = useStore($userId);
@@ -63,7 +66,7 @@ export const VariantsMenu = () => {
   };
 
   useEffect(() => {
-    if(userId) {
+    if(userId || ignoreAuth) {
       supabase
         .from("data")
         .select("variant_name")
@@ -73,7 +76,7 @@ export const VariantsMenu = () => {
           setVariantList(data?.map(({ variant_name }) => variant_name) ?? [])
         );
     }
-  }, [userId]);
+  }, [userId, ignoreAuth]);
   return (
     <div>
       <Button
@@ -121,7 +124,7 @@ export const VariantsMenu = () => {
           />
           <IconButton
             onClick={async () => {
-              if(userId) {
+              if(userId || ignoreAuth) {
                 const { error } = await supabase.from("data").insert({
                   variant_name: variantName || "default",
                   user_id: userId,

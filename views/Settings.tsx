@@ -48,7 +48,7 @@ export const Settings = () => {
         }}
       >
         <InitialBalancesSettings />
-        <VariantsMenu />
+        <VariantsMenu ignoreAuth />
       </div>
       <AddSingleRegularMoneyMove />
       <Button
