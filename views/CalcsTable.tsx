@@ -5,8 +5,9 @@ import { IconButton, Typography } from "@mui/material";
 import { DeleteSweep, Deselect } from "@mui/icons-material";
 import { calculateBudget } from "@/utils/utils";
 import { useStore } from "effector-react";
-import { $calcHeaders, $calcs, $calcsData, $moneyMoveCategories, $selectOptions } from "@/stores/calcs";
+import { $calcHeaders, $calcs, $calcsData, $moneyMoveCategories, $selectOptions, calcsHistory } from "@/stores/calcs";
 import { setCalcs } from "@/events/calcs";
+import { useHotkeys } from "react-hotkeys-hook";
 
 const useKeyPress = (targetKey: string) => {
   const [keyPressed, setKeyPressed] = useState(false);
@@ -48,13 +49,30 @@ export const CalcsTable = () => {
   const calcs = useStore($calcs)
   const calcHeaders = useStore($calcHeaders)
   const selectOptions = useStore($selectOptions)
-  
 
   const data = useStore($calcsData);
 
   const arrowUpPressed = useKeyPress("ArrowUp");
   const arrowDownPressed = useKeyPress("ArrowDown");
   const categories = useStore($moneyMoveCategories)
+  useHotkeys(
+    "ctrl+z,conlrol+z",
+    (ev) => {
+      ev.preventDefault()
+      calcsHistory.undo();
+    },
+    []
+  );
+  useHotkeys(
+    "ctrl+shift+z,conlrol+shift+z",
+    (ev) => {
+      ev.preventDefault();
+      calcsHistory.redo();
+    },
+    []
+  );
+  // console.log('history', calcsHistory.history.getState());
+  
 
   useEffect(() => {
     if (arrowUpPressed) {

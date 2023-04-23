@@ -1,4 +1,5 @@
 import { fetchCalcsFx, fetchCalcsHeadersFx, fetchDataFx, fetchExpenseHeadersFx, fetchExpensesFx, fetchIncomeHeadersFx, fetchIncomesFx, fetchInitialBalancesFx } from "@/effects/getDataFx";
+import { createHistory } from "@/effects/history";
 import { setCalcs, setCalcsExternal, setExpenses, setExpensesExternal, setIncomes, setIncomesExternal, setInitialBalance, setInitialBalanceExternal } from "@/events/calcs";
 import { IAccount, ParsedBudgetEntry, ParsedExpenses, ParsedIncomes } from "@/types";
 import { calculateBalances } from "@/utils/calculateBalances";
@@ -83,3 +84,10 @@ export const $categoryTargetHeaders = createStore<string[]>([]).on(
   fetchDataFx.doneData,
   (_, { categoryHeaders }) => categoryHeaders
 );
+
+export const calcsHistory = createHistory({
+  store: $calcs,
+  events: [setCalcs, setCalcsExternal],
+  limit: 30,
+})
+
