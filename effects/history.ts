@@ -66,13 +66,13 @@ export function createHistory<State>({
   })
     .on(store, ({ next: prev }, next) => ({ next, prev }))
     .map(({ next, prev }) => filter(next, prev));
-
-  guard({
-    source: sample<State>(store, merge(events)),
+  
+  sample({
+    source: store,
+    clock: merge(events),
     filter: shouldSave,
     target: push,
-  });
-
+  })
   forward({
     from: current,
     to: store,
