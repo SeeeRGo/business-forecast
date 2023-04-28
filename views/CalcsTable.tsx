@@ -5,7 +5,7 @@ import { IconButton, Typography } from "@mui/material";
 import { DeleteSweep, Deselect } from "@mui/icons-material";
 import { calculateBudget } from "@/utils/utils";
 import { useStore } from "effector-react";
-import { $calcHeaders, $calcs, $calcsData, $moneyMoveCategories, $selectOptions, calcsHistory } from "@/stores/calcs";
+import { $calcHeaders, $calcs, $calcsData, $initialBalances, $moneyMoveCategories, $selectOptions, calcsHistory } from "@/stores/calcs";
 import { setCalcs } from "@/events/calcs";
 import { useHotkeys } from "react-hotkeys-hook";
 
@@ -49,6 +49,7 @@ export const CalcsTable = () => {
   const calcs = useStore($calcs)
   const calcHeaders = useStore($calcHeaders)
   const selectOptions = useStore($selectOptions)
+  const initialBalances = useStore($initialBalances)
 
   const data = useStore($calcsData);
 
@@ -70,9 +71,7 @@ export const CalcsTable = () => {
       calcsHistory.redo();
     },
     []
-  );
-  // console.log('history', calcsHistory.history.getState());
-  
+  );  
 
   useEffect(() => {
     if (arrowUpPressed) {
@@ -199,7 +198,7 @@ export const CalcsTable = () => {
           )}
           rowStylingRules={[(row) => (row[0] ? {} : { opacity: 0.1 })]}
           calculateIsRowSelected={([_, isSelected]: any[]) => isSelected}
-          renderFuncs={calcTableRenderFuncs(calcs, selectOptions, categories)}
+          renderFuncs={calcTableRenderFuncs(calcs, selectOptions, categories, initialBalances)}
         />
       ) : null}
     </>

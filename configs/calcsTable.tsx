@@ -1,12 +1,12 @@
 import { Balance } from "@/components/Balance";
 import { BUDGET_ENTRY_KEYS } from "@/constants";
-import { setCalcs } from "@/events/calcs";
-import { ParsedBudgetEntry, RenderFunc } from "@/types";
-import { calculateBalances } from "@/utils/calculateBalances";
+import { setCalcs, setInitialBalance } from "@/events/calcs";
+import { IAccount, ParsedBudgetEntry, RenderFunc } from "@/types";
+import { calcAddedBalance, calculateBalances } from "@/utils/calculateBalances";
 import { createBudgetEntry } from "@/utils/createBudgetEntry";
 import { createInputRenderer, createSelectRenderer, createTextAreaRenderer } from "@/utils/createInputRender";
 import { ArrowDownward, ArrowUpward, ContentCopy, Delete } from "@mui/icons-material";
-import { Checkbox } from "@mui/material";
+import { Button, Checkbox } from "@mui/material";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { ru } from "date-fns/locale";
@@ -16,6 +16,7 @@ export const calcTableRenderFuncs = (
   calcs: ParsedBudgetEntry[],
   selectOptions: string[],
   categoryOptions: string[],
+  initialBalances: IAccount[]
 ): Array<RenderFunc | undefined> => [
   (value, rowIndex) => (
     <Checkbox
@@ -125,6 +126,23 @@ export const calcTableRenderFuncs = (
       >
         <Delete fontSize="inherit" />
       </button>
+      <Button onClick={() => {
+        const newCalcs = [...calcs];
+        const executedRow = newCalcs.splice(rowNumber, 1);
+        const newBalances = [...initialBalances];
+        const updatedBalances = newBalances.map(({name, balance}) => {
+          const targetRow = executedRow.at(0)
+          if(targetRow) {
+            const { account, income, expense } = targetRow
+            if (name === account) {
+              return { name, balance: balance + calcAddedBalance(income, expense) }
+            }          
+          }
+          return { name, balance }
+        }) 
+        setInitialBalance(updatedBalances)
+        setCalcs(newCalcs)    
+      }}>Выполнить</Button>
       <button
         onClick={() => {
           const newCalcs = [...calcs];

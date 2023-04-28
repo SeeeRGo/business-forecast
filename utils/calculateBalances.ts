@@ -1,6 +1,6 @@
 import { IAccount, ParsedBudgetEntry } from "../types";
 
-const calcAddedBalance = (
+export const calcAddedBalance = (
   income: number | string,
   expense: number | string,
 ) => (parseFloat(`${income}`) || 0) + (parseFloat(`${expense}`) || 0)

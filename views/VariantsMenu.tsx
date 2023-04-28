@@ -70,7 +70,7 @@ export const VariantsMenu = ({ ignoreAuth }: IProps) => {
       supabase
         .from("data")
         .select("variant_name")
-        .eq("user_id", userId)
+        // .eq("user_id", userId) // user_ids are temporarily not needed
         .order("id", { ascending: false })
         .then(({ data }) =>
           setVariantList(data?.map(({ variant_name }) => variant_name) ?? [])
