@@ -29,10 +29,10 @@ export default NextAuth({
 
         // If no error and we have user data, return it
         if (
-          credentials.username === process.env.USERNAME &&
-          credentials.password === process.env.PASSWORD
+          credentials?.username === process.env.USERNAME &&
+          credentials?.password === process.env.PASSWORD
         ) {
-          return { id: 1, name: "J Smith", email: "jsmith@example.com" };
+          return { id: '1', name: "J Smith", email: "jsmith@example.com" };
         }
         // Return null if user data could not be retrieved
         return null;
