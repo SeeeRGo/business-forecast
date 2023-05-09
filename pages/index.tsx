@@ -21,6 +21,8 @@ import { autosaveTimer } from "@/events/autosave";
 import { $calcs, $expenses, $incomes, $initialBalances } from "@/stores/calcs";
 import { Accordion, AccordionDetails, AccordionSummary } from "@mui/material";
 import { UploadRow } from "@/views/UploadRow";
+import { useSession } from "next-auth/react";
+import Link from "next/link";
 
 sample({
   clock: autosaveTimer,
@@ -37,6 +39,9 @@ sample({
 });
 
 export default function Home() {
+  const { data } = useSession();
+  console.log('data', data);
+  
   useEffect(() => {
     fetchInitialBalancesFx();
   }, []);
@@ -65,7 +70,7 @@ export default function Home() {
     fetchExpenseHeadersFx();
   }, []);
 
-  return (
+  return data ? (
     <>
       <Head>
         <title>Create Next App</title>
@@ -74,6 +79,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.main}>
+        <Link href="/api/auth/signout">Выход</Link>
         <UploadRow ignoreAuth />
         <Accordion>
           <AccordionSummary>Постоянные доходы и расходы</AccordionSummary>
@@ -94,5 +100,7 @@ export default function Home() {
         <CalcsTable />
       </main>
     </>
+  ) : (
+    <Link href="/api/auth/signin">Логин</Link>
   );
 }

@@ -8,27 +8,39 @@ import { supabase } from "@/utils/db";
 import { setSession } from "@/events/auth";
 import { useStore } from "effector-react";
 import { $session } from "@/stores/stores";
+import { SessionProvider } from "next-auth/react";
 
-export default function App({ Component, pageProps }: AppProps) {
-  const currentSession = useStore($session)
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  if (false) {
-    return <Auth supabaseClient={supabase} appearance={{ theme: ThemeSupa }} />;
-  } else {
-    return <Component {...pageProps} />;
-  }
+export default function App({
+  Component,
+  pageProps: { session, ...pageProps },
+}) {
+  return (
+    <SessionProvider session={session}>
+      <Component {...pageProps} />
+    </SessionProvider>
+  );
 }
+
+// export default function App({ Component, pageProps }: AppProps) {
+//   const currentSession = useStore($session)
+
+//   useEffect(() => {
+//     supabase.auth.getSession().then(({ data: { session } }) => {
+//       setSession(session);
+//     });
+
+//     const {
+//       data: { subscription },
+//     } = supabase.auth.onAuthStateChange((_event, session) => {
+//       setSession(session);
+//     });
+
+//     return () => subscription.unsubscribe();
+//   }, []);
+
+//   if (false) {
+//     return <Auth supabaseClient={supabase} appearance={{ theme: ThemeSupa }} />;
+//   } else {
+//     return <Component {...pageProps} />;
+//   }
+// }
